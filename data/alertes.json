@@ -1,0 +1,24 @@
+{
+  "alertes": [
+    {
+      "id": 1776028276338,
+      "userId": 4,
+      "nom": "Katia Lopez",
+      "site": "Tunis Jupiter",
+      "alertes": [
+        {
+          "icon": "🔴",
+          "titre": "Absentéisme élevé",
+          "detail": "37.5% — impacte directement la performance",
+          "urgence": "critique"
+        }
+      ],
+      "kpi": {},
+      "presence": {
+        "tauxAbsenteisme": 37.5
+      },
+      "date": "2026-04-12T21:11:16.338Z",
+      "lu": false
+    }
+  ]
+}

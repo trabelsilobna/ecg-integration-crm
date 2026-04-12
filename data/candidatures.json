@@ -1,0 +1,86 @@
+[
+  {
+    "id": 1,
+    "candidatNom": "Lopez",
+    "candidatPrenom": "Katia",
+    "email": "k.lopez@cplussur.com",
+    "poste": "Conseillère Commerciale",
+    "site": "Tunis Jupiter",
+    "dateDepot": "2026-01-15",
+    "statut": "integre",
+    "userId": 4,
+    "cv": {
+      "nomFichier": "CV_Katia_Lopez.pdf",
+      "dateUpload": "2026-01-15",
+      "scoreIA": 82,
+      "competences": ["Communication", "Vente", "CRM", "Relation client", "Négociation"],
+      "experience": "3 ans en centre d'appels",
+      "formation": "BTS Commerce",
+      "langues": ["Français", "Arabe", "Anglais (notions)"],
+      "analyseSommaire": "Profil commercial solide avec expérience en centre d'appels. Bonne maîtrise des outils CRM. Aptitudes relationnelles confirmées.",
+      "pointsForts": ["Expérience terrain", "Multilinguisme", "Adaptabilité"],
+      "pointsAmeliorer": ["Anglais à renforcer", "Outils digitaux avancés"]
+    },
+    "entretien": {
+      "dateEntretien": "2026-01-22",
+      "recruteurId": 6,
+      "recruteurNom": "Sonia Mansouri",
+      "duree": 45,
+      "type": "Présentiel",
+      "statut": "valide",
+      "tests": [
+        {
+          "id": 1,
+          "nom": "Test de personnalité DISC",
+          "categorie": "Personnalité",
+          "score": 78,
+          "scoreMax": 100,
+          "resultat": "Profil Influent-Stable",
+          "commentaire": "Bonne orientation relationnelle, aptitude à la persuasion",
+          "dateTest": "2026-01-22"
+        },
+        {
+          "id": 2,
+          "nom": "Test de vente simulée",
+          "categorie": "Compétences métier",
+          "score": 85,
+          "scoreMax": 100,
+          "resultat": "Très satisfaisant",
+          "commentaire": "Excellente gestion des objections, argumentaire structuré",
+          "dateTest": "2026-01-22"
+        },
+        {
+          "id": 3,
+          "nom": "Test de communication orale",
+          "categorie": "Soft skills",
+          "score": 80,
+          "scoreMax": 100,
+          "resultat": "Satisfaisant",
+          "commentaire": "Élocution claire, écoute active bien développée",
+          "dateTest": "2026-01-22"
+        },
+        {
+          "id": 4,
+          "nom": "Test logique et raisonnement",
+          "categorie": "Aptitudes cognitives",
+          "score": 72,
+          "scoreMax": 100,
+          "resultat": "Satisfaisant",
+          "commentaire": "Bonne capacité d'analyse, quelques hésitations sur les questions complexes",
+          "dateTest": "2026-01-22"
+        }
+      ],
+      "notesRecruteur": "Candidate motivée, bonne présentation, expérience pertinente pour le poste. Recommandée pour intégration.",
+      "scoreGlobal": 79,
+      "decision": "Accepté",
+      "validationManager": {
+        "managerId": 1,
+        "managerNom": "Arab Benourdia",
+        "dateValidation": "2026-01-25",
+        "statut": "valide",
+        "commentaire": "Profil validé. Intégration confirmée au 01/02/2026 sur le site Tunis Jupiter.",
+        "conditionsSpeciales": "Période d'essai 3 mois avec suivi hebdomadaire"
+      }
+    }
+  }
+]

@@ -1,0 +1,9 @@
+node_modules/
+.env
+*.log
+uploads/avatars/*.jpg
+uploads/avatars/*.png
+uploads/avatars/*.webp
+uploads/coach/
+uploads/pmo/
+public/uploads/

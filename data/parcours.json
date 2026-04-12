@@ -1,0 +1,255 @@
+{
+  "etapes": [
+    {
+      "id": 1,
+      "phase": "preboarding",
+      "titre": "Signature du contrat",
+      "description": "Finaliser et signer le contrat de travail avec les RH",
+      "duree": "J-30",
+      "responsable": "RH",
+      "icone": "file-text",
+      "rolesAcces": [
+        "admin",
+        "rh",
+        "pmo",
+        "pdg"
+      ]
+    },
+    {
+      "id": 2,
+      "phase": "preboarding",
+      "titre": "Accès aux outils",
+      "description": "Réception des identifiants, matériel informatique et accès aux systèmes",
+      "duree": "J-7",
+      "responsable": "IT",
+      "icone": "key",
+      "rolesAcces": [
+        "admin",
+        "rh",
+        "pmo",
+        "pdg"
+      ]
+    },
+    {
+      "id": 3,
+      "phase": "preboarding",
+      "titre": "Kit de bienvenue",
+      "description": "Envoi du kit de bienvenue ECG avec les informations pratiques",
+      "duree": "J-5",
+      "responsable": "RH",
+      "icone": "gift",
+      "rolesAcces": [
+        "admin",
+        "rh",
+        "pmo",
+        "pdg"
+      ]
+    },
+    {
+      "id": 4,
+      "phase": "onboarding",
+      "titre": "Accueil et présentation",
+      "description": "Rencontre avec l'équipe, visite des locaux et présentation du groupe ECG",
+      "duree": "J+1",
+      "responsable": "RH + Recruteur",
+      "icone": "users",
+      "rolesAcces": [
+        "admin",
+        "rh",
+        "pmo",
+        "pdg",
+        "recruteur"
+      ]
+    },
+    {
+      "id": 5,
+      "phase": "onboarding",
+      "titre": "Formation initiale par le formateur",
+      "description": "Formation complète par le formateur interne : produits, outils, processus et méthodes ECG",
+      "duree": "10 jours",
+      "responsable": "Formateur",
+      "icone": "book-open",
+      "rolesAcces": [
+        "admin",
+        "rh",
+        "pmo",
+        "pdg",
+        "formateur"
+      ]
+    },
+    {
+      "id": 6,
+      "phase": "onboarding",
+      "titre": "Prise de poste",
+      "description": "Démarrage des missions, intégration dans les projets en cours",
+      "duree": "Semaine 2-4",
+      "responsable": "Manager",
+      "icone": "briefcase",
+      "rolesAcces": [
+        "admin",
+        "rh",
+        "pmo",
+        "pdg"
+      ]
+    },
+    {
+      "id": 11,
+      "phase": "postonboarding",
+      "titre": "Accompagnement terrain par le Coach",
+      "description": "Séances d'accompagnement individuel sur le terrain avec le coach intégrateur",
+      "duree": "J+7 à J+30",
+      "responsable": "Coach",
+      "icone": "users",
+      "timing": "Semaines 2-4",
+      "rolesAcces": [
+        "admin",
+        "rh",
+        "pmo",
+        "pdg",
+        "coach"
+      ]
+    },
+    {
+      "id": 12,
+      "phase": "postonboarding",
+      "titre": "Suivi des objectifs commerciaux",
+      "description": "Revue hebdomadaire des KPIs et objectifs avec le coach intégrateur",
+      "duree": "J+7 à J+30",
+      "responsable": "Coach",
+      "icone": "target",
+      "timing": "Chaque semaine",
+      "rolesAcces": [
+        "admin",
+        "rh",
+        "pmo",
+        "pdg",
+        "coach"
+      ]
+    },
+    {
+      "id": 8,
+      "phase": "postonboarding",
+      "titre": "Bilan à 1 mois",
+      "description": "Évaluation de l'intégration, identification des besoins complémentaires",
+      "duree": "M+1",
+      "responsable": "Manager",
+      "icone": "bar-chart-2",
+      "rolesAcces": [
+        "admin",
+        "rh",
+        "pmo",
+        "pdg"
+      ]
+    },
+    {
+      "id": 9,
+      "phase": "postonboarding",
+      "titre": "Évaluation à 3 mois",
+      "description": "Bilan complet des compétences, fixation des objectifs à 6 mois",
+      "duree": "M+3",
+      "responsable": "RH + Manager",
+      "icone": "target",
+      "rolesAcces": [
+        "admin",
+        "rh",
+        "pmo",
+        "pdg"
+      ]
+    },
+    {
+      "id": 10,
+      "phase": "postonboarding",
+      "titre": "Validation de l'intégration",
+      "description": "Confirmation de la période d'essai et plan de développement",
+      "duree": "M+6",
+      "responsable": "RH",
+      "icone": "award",
+      "rolesAcces": [
+        "admin",
+        "rh",
+        "pmo",
+        "pdg"
+      ]
+    }
+  ],
+  "progressions": [
+    {
+      "userId": 4,
+      "etapeId": 1,
+      "statut": "a_faire",
+      "date": "2026-04-09"
+    },
+    {
+      "userId": 4,
+      "etapeId": 2,
+      "statut": "en_cours",
+      "date": "2026-04-09"
+    },
+    {
+      "userId": 4,
+      "etapeId": 3,
+      "statut": "en_cours",
+      "date": "2026-04-09"
+    },
+    {
+      "userId": 4,
+      "etapeId": 5,
+      "statut": "termine",
+      "date": "2026-04-09"
+    },
+    {
+      "userId": 4,
+      "etapeId": 6,
+      "statut": "termine",
+      "date": "2026-04-02"
+    },
+    {
+      "userId": 4,
+      "etapeId": 7,
+      "statut": "termine",
+      "date": "2026-03-25"
+    },
+    {
+      "userId": 4,
+      "etapeId": 4,
+      "statut": "termine",
+      "date": "2026-04-02"
+    },
+    {
+      "userId": 4,
+      "etapeId": 8,
+      "statut": "termine",
+      "date": "2026-04-02"
+    },
+    {
+      "userId": 4,
+      "etapeId": 9,
+      "statut": "termine",
+      "date": "2026-04-02"
+    },
+    {
+      "userId": 4,
+      "etapeId": 10,
+      "statut": "termine",
+      "date": "2026-04-02"
+    },
+    {
+      "userId": 4,
+      "etapeId": 11,
+      "statut": "termine",
+      "date": "2026-04-12"
+    },
+    {
+      "userId": 4,
+      "etapeId": 12,
+      "statut": "termine",
+      "date": "2026-04-09"
+    },
+    {
+      "userId": 1,
+      "etapeId": "1",
+      "statut": "termine",
+      "date": "2026-04-09"
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "config": {
+    "heureDebut": "09:00",
+    "toleranceMinutes": 15,
+    "heureAbsence": "12:00",
+    "joursOuvres": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "fuseau": "Africa/Tunis"
+  },
+  "pointages": [
+    {
+      "id": 1774952692018,
+      "userId": 4,
+      "date": "2026-03-31",
+      "heureConnexion": "11:24",
+      "statut": "retard",
+      "retardMinutes": 144
+    },
+    {
+      "id": 1775164926896,
+      "userId": 4,
+      "date": "2026-04-02",
+      "heureConnexion": null,
+      "statut": "absent",
+      "retardMinutes": 0
+    },
+    {
+      "id": 1775508001307,
+      "userId": 4,
+      "date": "2026-04-06",
+      "heureConnexion": null,
+      "statut": "absent",
+      "retardMinutes": 0
+    },
+    {
+      "id": 1775520276597,
+      "userId": 4,
+      "date": "2026-04-07",
+      "heureConnexion": "01:04",
+      "statut": "present",
+      "retardMinutes": 0
+    },
+    {
+      "id": 1775605956153,
+      "userId": 4,
+      "date": "2026-04-08",
+      "heureConnexion": "00:52",
+      "statut": "present",
+      "retardMinutes": 0
+    },
+    {
+      "id": 1775729536310,
+      "userId": 4,
+      "date": "2026-04-09",
+      "heureConnexion": "11:12",
+      "statut": "retard",
+      "retardMinutes": 132
+    },
+    {
+      "id": 1775844952940,
+      "userId": 4,
+      "date": "2026-04-10",
+      "heureConnexion": null,
+      "statut": "absent",
+      "retardMinutes": 0
+    },
+    {
+      "id": 1776035897152,
+      "userId": 4,
+      "date": "2026-04-13",
+      "heureConnexion": "00:18",
+      "statut": "present",
+      "retardMinutes": 0
+    }
+  ]
+}
