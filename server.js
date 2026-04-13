@@ -154,7 +154,7 @@ app.get('/mon-espace', requireAuth, (req, res) => {
 app.get('/api/collaborateurs', requireAuth, (req, res) => {
   const users = readData('users.json');
   const currentUser = req.session.user;
-  const adminRoles = ['admin', 'rh', 'pmo', 'pdg', 'manager'];
+  const adminRoles = ['admin', 'rh', 'pmo', 'pdg', 'manager', 'directeur_commercial'];
   let allUsers = users;
 
   // Filtrage par périmètre selon le rôle
@@ -228,7 +228,7 @@ app.get('/api/parcours/progression/:userId', requireAuth, (req, res) => {
   const data = readData('parcours.json');
   const userId = parseInt(req.params.userId);
   const currentUser = req.session.user;
-  const adminRoles = ['admin', 'rh', 'pmo', 'pdg', 'manager'];
+  const adminRoles = ['admin', 'rh', 'pmo', 'pdg', 'manager', 'directeur_commercial'];
 
   // Vérification du périmètre : les rôles non-admin ne peuvent voir que leurs CC assignés
   if (!adminRoles.includes(currentUser.role)) {
