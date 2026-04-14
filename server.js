@@ -40,7 +40,10 @@ app.use(session({
   cookie: { secure: 'auto', sameSite: 'lax', maxAge: 8 * 60 * 60 * 1000 }
 }));
 
-// Helper: lire/écrire les données JSON
+// ─── MODULE POSTGRESQL ────────────────────────────────────────────────────────
+const db = require('./db-pg');
+
+// Helper: lire/écrire les données JSON (sync fallback)
 function readData(file) {
   const filePath = path.join(__dirname, 'data', file);
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -49,6 +52,9 @@ function writeData(file, data) {
   const filePath = path.join(__dirname, 'data', file);
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 }
+// Versions async (utilisent PostgreSQL si disponible)
+async function readDataA(file) { return db.readDataAsync(file); }
+async function writeDataA(file, data) { return db.writeDataAsync(file, data); }
 
 // Middleware auth
 function requireAuth(req, res, next) {
@@ -1548,6 +1554,15 @@ app.post('/api/profil/avatar', requireAuth, avatarUpload.single('avatar'), (req,
 // GET /uploads/avatars/:filename — Servir les avatars (public pour affichage)
 app.use('/uploads/avatars', express.static(avatarUploadDir));
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`ECG CRM running on http://0.0.0.0:${PORT}`);
+// ─── DÉMARRAGE AVEC INIT DB ─────────────────────────────────────────────────
+db.init().then(() => {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`ECG CRM running on http://0.0.0.0:${PORT}`);
+  });
+}).catch(err => {
+  console.error('Erreur init DB:', err.message);
+  // Fallback : démarrer quand même en mode JSON
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`ECG CRM running on http://0.0.0.0:${PORT} (mode JSON fallback)`);
+  });
 });
