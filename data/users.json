@@ -121,5 +121,61 @@
     "dateArrivee": "2024-01-01",
     "progression": 0,
     "statut": "actif"
+  },
+  {
+    "id": 10,
+    "nom": "Rossi",
+    "prenom": "Alba",
+    "login": "alba.rossi",
+    "email": "alba.rossi@ecg-group.com",
+    "password": "$2b$10$q9/ZnZkqbUpTnLKNSSxOdeaeyD1E4jnmPwaFWUglzkqDswEWuluSi",
+    "role": "coach",
+    "poste": "Coach Intégrateur",
+    "site": "Paris",
+    "departement": "Intégration",
+    "progression": 0,
+    "statut": "en_cours"
+  },
+  {
+    "id": 11,
+    "nom": "Texera",
+    "prenom": "Lorenzo",
+    "login": "lorenzo.texera",
+    "email": "lorenzo.texera@ecg-group.com",
+    "password": "$2b$10$q9/ZnZkqbUpTnLKNSSxOdeaeyD1E4jnmPwaFWUglzkqDswEWuluSi",
+    "role": "formateur",
+    "poste": "Formateur",
+    "site": "Paris",
+    "departement": "Formation",
+    "progression": 0,
+    "statut": "en_cours"
+  },
+  {
+    "id": 12,
+    "nom": "Kamelia",
+    "prenom": "Kamelia",
+    "login": "kamelia",
+    "email": "kamelia@ecg-group.com",
+    "password": "$2b$10$q9/ZnZkqbUpTnLKNSSxOdeaeyD1E4jnmPwaFWUglzkqDswEWuluSi",
+    "role": "collaborateur",
+    "poste": "Conseiller Commercial",
+    "site": "Paris",
+    "departement": "Commercial",
+    "progression": 0,
+    "statut": "en_cours"
+  },
+  {
+    "id": 13,
+    "nom": "Romy",
+    "prenom": "Romy",
+    "login": "romy",
+    "email": "romy@ecg-group.com",
+    "password": "$2b$10$q9/ZnZkqbUpTnLKNSSxOdeaeyD1E4jnmPwaFWUglzkqDswEWuluSi",
+    "role": "collaborateur",
+    "poste": "Conseiller Commercial",
+    "site": "Paris",
+    "departement": "Commercial",
+    "progression": 0,
+    "statut": "en_cours"
   }
 ]
