@@ -59,11 +59,14 @@ async function importInitialData() {
                  'alertes.json', 'parrainages.json', 'ressources_custom.json',
                  'planning_coach.json', 'coach_seances.json', 'coach_plan_action.json', 'coach_taches.json'];
 
+  const forceReimport = process.env.FORCE_DB_REIMPORT === 'true';
+
   // Import users dans table dédiée
   try {
     const users = JSON.parse(fs.readFileSync(path.join(dataDir, 'users.json'), 'utf8'));
     const existing = await query('SELECT COUNT(*) FROM ecg_users');
-    if (parseInt(existing.rows[0].count) === 0) {
+    if (parseInt(existing.rows[0].count) === 0 || forceReimport) {
+      if (forceReimport) { await query('DELETE FROM ecg_users'); console.log('🔄 Réimportation forcée des utilisateurs'); }
       for (const u of users) {
         await query(
           'INSERT INTO ecg_users (id, login, data) VALUES ($1, $2, $3) ON CONFLICT (login) DO NOTHING',
