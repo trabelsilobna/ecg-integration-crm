@@ -64,14 +64,14 @@ function requireAdmin(req, res, next) {
 
 // ─── AUTH ROUTES ─────────────────────────────────────────────────────────────
 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
   if (req.session.user) {
     return res.redirect(req.session.user.role === 'collaborateur' ? '/mon-espace' : '/dashboard');
   }
   res.redirect('/login');
 });
 
-app.get('/login', (req, res) => {
+app.get('/login', async (req, res) => {
   if (req.session.user) {
     return res.redirect(req.session.user.role === 'collaborateur' ? '/mon-espace' : '/dashboard');
   }
@@ -80,7 +80,7 @@ app.get('/login', (req, res) => {
 
 app.post('/api/login', async (req, res) => {
   const { login, password } = req.body;
-  const users = readData('users.json');
+  const users = await readDataA('users.json');
   const user = users.find(u => u.login === login || u.email === login);
   if (!user) return res.json({ success: false, message: 'Identifiant ou mot de passe incorrect' });
   const valid = await bcrypt.compare(password, user.password);
@@ -96,29 +96,29 @@ app.post('/api/login', async (req, res) => {
   res.json({ success: true, role: user.role, redirect });
 });
 
-app.post('/api/logout', (req, res) => {
+app.post('/api/logout', async (req, res) => {
   req.session.destroy();
   res.json({ success: true });
 });
 
-app.get('/api/me', requireAuth, (req, res) => {
+app.get('/api/me', requireAuth, async (req, res) => {
   res.json(req.session.user);
 });
 
 // ─── DASHBOARD ───────────────────────────────────────────────────────────────
 
-app.get('/dashboard', requireAuth, (req, res) => {
+app.get('/dashboard', requireAuth, async (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'app.html'));
 });
-app.get('/parcours', requireAuth, (req, res) => res.sendFile(path.join(__dirname, 'views', 'app.html')));
-app.get('/collaborateurs', requireAuth, (req, res) => res.sendFile(path.join(__dirname, 'views', 'app.html')));
-app.get('/ressources', requireAuth, (req, res) => res.sendFile(path.join(__dirname, 'views', 'app.html')));
-app.get('/kpi', requireAuth, (req, res) => res.sendFile(path.join(__dirname, 'views', 'app.html')));
-app.get('/profil', requireAuth, (req, res) => res.sendFile(path.join(__dirname, 'views', 'app.html')));
-app.get('/alertes', requireAdmin, (req, res) => res.sendFile(path.join(__dirname, 'views', 'app.html')));
+app.get('/parcours', requireAuth, async (req, res) => res.sendFile(path.join(__dirname, 'views', 'app.html')));
+app.get('/collaborateurs', requireAuth, async (req, res) => res.sendFile(path.join(__dirname, 'views', 'app.html')));
+app.get('/ressources', requireAuth, async (req, res) => res.sendFile(path.join(__dirname, 'views', 'app.html')));
+app.get('/kpi', requireAuth, async (req, res) => res.sendFile(path.join(__dirname, 'views', 'app.html')));
+app.get('/profil', requireAuth, async (req, res) => res.sendFile(path.join(__dirname, 'views', 'app.html')));
+app.get('/alertes', requireAdmin, async (req, res) => res.sendFile(path.join(__dirname, 'views', 'app.html')));
 
 // Interface dédiée collaborateur
-app.get('/mon-espace', requireAuth, (req, res) => {
+app.get('/mon-espace', requireAuth, async (req, res) => {
   // Seuls les collaborateurs accèdent à cette interface
   if (!req.session.user || req.session.user.role !== 'collaborateur') {
     return res.redirect('/dashboard');
@@ -128,7 +128,7 @@ app.get('/mon-espace', requireAuth, (req, res) => {
   // Calculer la progression du parcours côté serveur
   let progression = 0, termine = 0, total = 0;
   try {
-    const parcoursData = readData('parcours.json');
+    const parcoursData = await readDataA('parcours.json');
     const userId = u.id;
     const progressions = parcoursData.progressions.filter(p => p.userId === userId);
     total = parcoursData.etapes.length;
@@ -151,8 +151,8 @@ app.get('/mon-espace', requireAuth, (req, res) => {
 
 // ─── API COLLABORATEURS ───────────────────────────────────────────────────────
 
-app.get('/api/collaborateurs', requireAuth, (req, res) => {
-  const users = readData('users.json');
+app.get('/api/collaborateurs', requireAuth, async (req, res) => {
+  const users = await readDataA('users.json');
   const currentUser = req.session.user;
   const adminRoles = ['admin', 'rh', 'pmo', 'pdg', 'manager', 'directeur_commercial'];
   let allUsers = users;
@@ -184,25 +184,25 @@ app.get('/api/collaborateurs', requireAuth, (req, res) => {
   res.json(data);
 });
 
-app.get('/api/collaborateurs/:id', requireAuth, (req, res) => {
-  const users = readData('users.json');
+app.get('/api/collaborateurs/:id', requireAuth, async (req, res) => {
+  const users = await readDataA('users.json');
   const user = users.find(u => u.id === parseInt(req.params.id));
   if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
   const { password, ...safeUser } = user;
   res.json(safeUser);
 });
 
-app.put('/api/collaborateurs/:id', requireAuth, (req, res) => {
-  const users = readData('users.json');
+app.put('/api/collaborateurs/:id', requireAuth, async (req, res) => {
+  const users = await readDataA('users.json');
   const idx = users.findIndex(u => u.id === parseInt(req.params.id));
   if (idx === -1) return res.status(404).json({ error: 'Utilisateur non trouvé' });
   users[idx] = { ...users[idx], ...req.body, id: users[idx].id, password: users[idx].password };
-  writeData('users.json', users);
+  await writeDataA('users.json', users);
   res.json({ success: true });
 });
 
 app.post('/api/collaborateurs', requireAdmin, async (req, res) => {
-  const users = readData('users.json');
+  const users = await readDataA('users.json');
   const { nom, prenom, email, login, password, role, poste, site, departement, dateArrivee } = req.body;
   const hashed = await bcrypt.hash(password || 'Ecg2026!', 10);
   const newUser = {
@@ -213,26 +213,26 @@ app.post('/api/collaborateurs', requireAdmin, async (req, res) => {
     progression: 0, statut: 'en_cours'
   };
   users.push(newUser);
-  writeData('users.json', users);
+  await writeDataA('users.json', users);
   res.json({ success: true, id: newUser.id });
 });
 
 // ─── API PARCOURS ─────────────────────────────────────────────────────────────
 
-app.get('/api/parcours', requireAuth, (req, res) => {
-  const data = readData('parcours.json');
+app.get('/api/parcours', requireAuth, async (req, res) => {
+  const data = await readDataA('parcours.json');
   res.json(data.etapes);
 });
 
-app.get('/api/parcours/progression/:userId', requireAuth, (req, res) => {
-  const data = readData('parcours.json');
+app.get('/api/parcours/progression/:userId', requireAuth, async (req, res) => {
+  const data = await readDataA('parcours.json');
   const userId = parseInt(req.params.userId);
   const currentUser = req.session.user;
   const adminRoles = ['admin', 'rh', 'pmo', 'pdg', 'manager', 'directeur_commercial'];
 
   // Vérification du périmètre : les rôles non-admin ne peuvent voir que leurs CC assignés
   if (!adminRoles.includes(currentUser.role)) {
-    const users = readData('users.json');
+    const users = await readDataA('users.json');
     const targetUser = users.find(u => u.id === userId);
     if (targetUser && targetUser.role === 'collaborateur') {
       const fieldMap = { recruteur: 'responsableRecruteur', formateur: 'responsableFormateur', coach: 'responsableCoach' };
@@ -270,14 +270,15 @@ app.get('/api/parcours/progression/:userId', requireAuth, (req, res) => {
   const pourcentage = total > 0 ? Math.round((termineTotal / total) * 100) : 0;
 
   // Inclure les infos utilisateur
-  const users = readData('users.json');
+  const users = await readDataA('users.json');
   const userObj = users.find(u => u.id === userId);
   const user = userObj ? { prenom: userObj.prenom, nom: userObj.nom, poste: userObj.poste, site: userObj.site, dateArrivee: userObj.dateArrivee } : {};
   res.json({ etapes, progression: pourcentage, pourcentage, termine: termineVisible, total: totalVisible, user });
 });
 
-app.post('/api/parcours/progression', requireAuth, (req, res) => {
-  const data = readData('parcours.json');
+app.post('/api/parcours/progression', requireAuth, async (req, res) => {
+  const data = await readDataA('parcours.json');
+  if (!data.progressions) data.progressions = [];
   const { userId, etapeId, statut } = req.body;
   const idx = data.progressions.findIndex(p => p.userId === userId && p.etapeId === etapeId);
   if (idx >= 0) {
@@ -287,21 +288,17 @@ app.post('/api/parcours/progression', requireAuth, (req, res) => {
     data.progressions.push({ userId, etapeId, statut, date: new Date().toISOString().split('T')[0] });
   }
   // Recalculer progression utilisateur
-  const users = readData('users.json');
-  const userIdx = users.findIndex(u => u.id === userId);
-  if (userIdx >= 0) {
-    const userProgressions = data.progressions.filter(p => p.userId === userId);
-    const termine = userProgressions.filter(p => p.statut === 'termine').length;
-    users[userIdx].progression = Math.round((termine / data.etapes.length) * 100);
-    writeData('users.json', users);
-  }
-  writeData('parcours.json', data);
+  const userProgressions = data.progressions.filter(p => p.userId === userId);
+  const termine = userProgressions.filter(p => p.statut === 'termine').length;
+  const newProg = (data.etapes || []).length > 0 ? Math.round((termine / data.etapes.length) * 100) : 0;
+  await db.updateUserDB(userId, { progression: newProg });
+  await writeDataA('parcours.json', data);
   res.json({ success: true });
 });
 
 // ─── API RESSOURCES ───────────────────────────────────────────────────────────
 
-app.get('/api/ressources', requireAuth, (req, res) => {
+app.get('/api/ressources', requireAuth, async (req, res) => {
   // Ressources statiques ECG
   const ressourcesBase = [
     { id: 1, titre: "Guide du conseiller ECG", categorie: "commercial", description: "Méthodes de vente, argumentaires et bonnes pratiques commerciales chez ECG", icone: "📖", taille: "2.1 MB", type: "PDF", cible: "conseiller" },
@@ -341,9 +338,9 @@ app.get('/api/ressources', requireAuth, (req, res) => {
 
 // ─── API KPI ──────────────────────────────────────────────────────────────────
 
-app.get('/api/kpi', requireAuth, (req, res) => {
-  const users = readData('users.json');
-  const data = readData('parcours.json');
+app.get('/api/kpi', requireAuth, async (req, res) => {
+  const users = await readDataA('users.json');
+  const data = await readDataA('parcours.json');
   const collaborateurs = users.filter(u => u.role === 'collaborateur');
   const enCours = collaborateurs.filter(u => u.statut === 'en_cours').length;
   const termines = collaborateurs.filter(u => u.progression === 100).length;
@@ -405,7 +402,7 @@ app.post('/api/chat', requireAuth, async (req, res) => {
   }
 
   // 4️⃣ Aucune réponse trouvée → orienter vers le coach intégrateur
-  const users = readData('users.json');
+  const users = await readDataA('users.json');
   const ccUser = users.find(u => u.login === user.login);
   let coachInfo = '';
   if (ccUser && ccUser.responsableCoach) {
@@ -422,7 +419,7 @@ app.post('/api/chat', requireAuth, async (req, res) => {
 });
 
 // Recherche dans les documents alimentés par le PMO
-function rechercherDansDocuments(msg, user) {
+async function rechercherDansDocuments(msg, user) {
   const mots = msg.split(/\s+/).filter(m => m.length > 3);
   if (mots.length === 0) return null;
 
@@ -525,17 +522,17 @@ function getChatbotRegle(msg, prenom) {
 
 // ─── API KPI COMMERCIAUX (collaborateur) ─────────────────────────────────────
 
-app.get('/api/kpi-commerciaux/:userId', requireAuth, (req, res) => {
+app.get('/api/kpi-commerciaux/:userId', requireAuth, async (req, res) => {
   const userId = parseInt(req.params.userId);
   if (req.session.user.id !== userId && !['admin','rh','pmo','pdg'].includes(req.session.user.role)) {
     return res.status(403).json({ error: 'Accès refusé' });
   }
-  const data = readData('kpi_commerciaux.json');
+  const data = await readDataA('kpi_commerciaux.json');
   const realisations = data.realisations.filter(r => r.userId === userId);
 
   // Enrichir avec les données de pointage réelles
   try {
-    const cfg = readData('pointages.json');
+    const cfg = await readDataA('pointages.json');
     const pointagesUser = cfg.pointages.filter(p => p.userId === userId);
 
     // Correspondance période → préfixe de date
@@ -564,18 +561,18 @@ app.get('/api/kpi-commerciaux/:userId', requireAuth, (req, res) => {
   res.json(realisations);
 });
 
-app.get('/api/enquete/:userId', requireAuth, (req, res) => {
+app.get('/api/enquete/:userId', requireAuth, async (req, res) => {
   const userId = parseInt(req.params.userId);
   if (req.session.user.id !== userId && !['admin','rh','pmo','pdg'].includes(req.session.user.role)) {
     return res.status(403).json({ error: 'Accès refusé' });
   }
-  const data = readData('kpi_commerciaux.json');
+  const data = await readDataA('kpi_commerciaux.json');
   const enquetes = data.enquetesSatisfaction.filter(e => e.userId === userId);
   res.json(enquetes);
 });
 
-app.post('/api/enquete', requireAuth, (req, res) => {
-  const data = readData('kpi_commerciaux.json');
+app.post('/api/enquete', requireAuth, async (req, res) => {
+  const data = await readDataA('kpi_commerciaux.json');
   const userId = req.session.user.id;
   const { periode, scores, commentaire, recommandeECG } = req.body;
   // Vérifier si une enquête pour cette période existe déjà
@@ -591,7 +588,7 @@ app.post('/api/enquete', requireAuth, (req, res) => {
     recommandeECG: recommandeECG === true
   };
   data.enquetesSatisfaction.push(newEnquete);
-  writeData('kpi_commerciaux.json', data);
+  await writeDataA('kpi_commerciaux.json', data);
   res.json({ success: true });
 });
 
@@ -611,9 +608,9 @@ function getDateTunis() {
 }
 
 // Enregistrer le pointage d'un collaborateur lors de sa connexion
-function enregistrerPointage(userId) {
+async function enregistrerPointage(userId) {
   try {
-    const cfg = readData('pointages.json');
+    const cfg = await readDataA('pointages.json');
     const { date, heure, heureMinutes, jourSemaine } = getDateTunis();
 
     // Ne pas pointer les week-ends (sam=6, dim=0)
@@ -650,16 +647,16 @@ function enregistrerPointage(userId) {
       retardMinutes
     });
 
-    writeData('pointages.json', cfg);
+    await writeDataA('pointages.json', cfg);
   } catch (e) {
     console.error('Erreur pointage:', e.message);
   }
 }
 
 // Tâche automatique : marquer absent les collaborateurs non connectés avant 12h
-function marquerAbsents() {
+async function marquerAbsents() {
   try {
-    const cfg = readData('pointages.json');
+    const cfg = await readDataA('pointages.json');
     const { date, heureMinutes, jourSemaine } = getDateTunis();
     if (!cfg.config.joursOuvres.includes(jourSemaine)) return;
 
@@ -667,7 +664,7 @@ function marquerAbsents() {
     const minutesAbsence = hAbs * 60 + mAbs;
     if (heureMinutes < minutesAbsence) return; // Pas encore 12h
 
-    const users = readData('users.json');
+    const users = await readDataA('users.json');
     const collaborateurs = users.filter(u => u.role === 'collaborateur');
     let modifie = false;
 
@@ -686,7 +683,7 @@ function marquerAbsents() {
       }
     });
 
-    if (modifie) writeData('pointages.json', cfg);
+    if (modifie) await writeDataA('pointages.json', cfg);
   } catch (e) {
     console.error('Erreur marquerAbsents:', e.message);
   }
@@ -698,24 +695,24 @@ setInterval(marquerAbsents, 5 * 60 * 1000);
 // ─── ROUTES API POINTAGE ────────────────────────────────────────────────────────────────────────────────────
 
 // Pointages d'un collaborateur (lui-même ou admin)
-app.get('/api/pointages/:userId', requireAuth, (req, res) => {
+app.get('/api/pointages/:userId', requireAuth, async (req, res) => {
   const userId = parseInt(req.params.userId);
   if (req.session.user.id !== userId && !['admin','rh','pmo','pdg'].includes(req.session.user.role)) {
     return res.status(403).json({ error: 'Accès refusé' });
   }
-  const cfg = readData('pointages.json');
+  const cfg = await readDataA('pointages.json');
   const pointages = cfg.pointages.filter(p => p.userId === userId).sort((a, b) => b.date.localeCompare(a.date));
   res.json({ pointages, config: cfg.config });
 });
 
 // Tous les pointages du jour (admin/RH)
-app.get('/api/pointages-jour', requireAuth, (req, res) => {
+app.get('/api/pointages-jour', requireAuth, async (req, res) => {
   if (!['admin','rh','pmo','pdg'].includes(req.session.user.role)) {
     return res.status(403).json({ error: 'Accès refusé' });
   }
   const { date } = getDateTunis();
-  const cfg = readData('pointages.json');
-  const users = readData('users.json');
+  const cfg = await readDataA('pointages.json');
+  const users = await readDataA('users.json');
   const collaborateurs = users.filter(u => u.role === 'collaborateur');
   const result = collaborateurs.map(u => {
     const p = cfg.pointages.find(pt => pt.userId === u.id && pt.date === date);
@@ -748,13 +745,13 @@ function joursOuvresEcoules(prefix) {
 }
 
 // Stats de présence d'un collaborateur pour un mois donné
-app.get('/api/stats-presence/:userId', requireAuth, (req, res) => {
+app.get('/api/stats-presence/:userId', requireAuth, async (req, res) => {
   const userId = parseInt(req.params.userId);
   if (req.session.user.id !== userId && !['admin','rh','pmo','pdg'].includes(req.session.user.role)) {
     return res.status(403).json({ error: 'Accès refusé' });
   }
   const { annee, mois } = req.query; // ex: 2026, 03
-  const cfg = readData('pointages.json');
+  const cfg = await readDataA('pointages.json');
   const prefix = annee && mois ? `${annee}-${mois}` : getDateTunis().date.substring(0, 7);
   const pointagesMois = cfg.pointages.filter(p => p.userId === userId && p.date.startsWith(prefix));
   const presents = pointagesMois.filter(p => p.statut === 'present').length;
@@ -781,27 +778,27 @@ app.get('/api/stats-presence/:userId', requireAuth, (req, res) => {
 });
 
 // Mettre à jour la config horaire (admin)
-app.put('/api/pointage-config', requireAuth, (req, res) => {
+app.put('/api/pointage-config', requireAuth, async (req, res) => {
   if (!['admin','rh'].includes(req.session.user.role)) {
     return res.status(403).json({ error: 'Accès refusé' });
   }
   const { heureDebut, toleranceMinutes, heureAbsence } = req.body;
-  const cfg = readData('pointages.json');
+  const cfg = await readDataA('pointages.json');
   if (heureDebut) cfg.config.heureDebut = heureDebut;
   if (toleranceMinutes !== undefined) cfg.config.toleranceMinutes = parseInt(toleranceMinutes);
   if (heureAbsence) cfg.config.heureAbsence = heureAbsence;
-  writeData('pointages.json', cfg);
+  await writeDataA('pointages.json', cfg);
   res.json({ success: true, config: cfg.config });
 });
 
 // ─── API ABSENTÉISME GLOBAL PAR CC (admin) ────────────────────────────────────────────────────────────────────────────────────
 
-app.get('/api/admin/absenteisme', requireAuth, (req, res) => {
+app.get('/api/admin/absenteisme', requireAuth, async (req, res) => {
   if (!['admin','rh','pmo','pdg'].includes(req.session.user.role)) {
     return res.status(403).json({ error: 'Accès refusé' });
   }
-  const users = readData('users.json');
-  const cfg = readData('pointages.json');
+  const users = await readDataA('users.json');
+  const cfg = await readDataA('pointages.json');
   const { annee, mois } = req.query;
   const prefix = annee && mois ? `${annee}-${mois}` : getDateTunis().date.substring(0, 7);
   const joursOuvres = joursOuvresEcoules(prefix);
@@ -844,12 +841,12 @@ app.get('/api/admin/absenteisme', requireAuth, (req, res) => {
 
 // ─── API TURNOVER & ANALYSE PAR PHASE (admin) ────────────────────────────────────────────────────────────────────────────────────
 
-app.get('/api/admin/turnover', requireAuth, (req, res) => {
+app.get('/api/admin/turnover', requireAuth, async (req, res) => {
   if (!['admin','rh','pmo','pdg'].includes(req.session.user.role)) {
     return res.status(403).json({ error: 'Accès refusé' });
   }
-  const users = readData('users.json');
-  const parcoursData = readData('parcours.json');
+  const users = await readDataA('users.json');
+  const parcoursData = await readDataA('parcours.json');
   const collaborateurs = users.filter(u => u.role === 'collaborateur');
 
   // Définition des phases et leur ordre
@@ -942,9 +939,9 @@ app.get('/api/admin/analyse-ia', requireAuth, async (req, res) => {
     return res.status(403).json({ error: 'Accès refusé' });
   }
 
-  const users = readData('users.json');
-  const parcoursData = readData('parcours.json');
-  const cfg = readData('pointages.json');
+  const users = await readDataA('users.json');
+  const parcoursData = await readDataA('parcours.json');
+  const cfg = await readDataA('pointages.json');
   const collaborateurs = users.filter(u => u.role === 'collaborateur');
   const prefix = getDateTunis().date.substring(0, 7);
   const joursOuvres = joursOuvresEcoules(prefix);
@@ -1076,7 +1073,7 @@ function loadAlertes() { try { return JSON.parse(fs.readFileSync(alertesPath, 'u
 function saveAlertes(d) { fs.writeFileSync(alertesPath, JSON.stringify(d, null, 2)); }
 
 // POST : un conseiller envoie une alerte à son manager
-app.post('/api/alertes-manager', requireAuth, (req, res) => {
+app.post('/api/alertes-manager', requireAuth, async (req, res) => {
   const { userId, nom, site, mois, alertes, kpi, presence } = req.body;
   if (!userId || !alertes || alertes.length === 0) return res.json({ success: false });
   const data = loadAlertes();
@@ -1101,13 +1098,13 @@ app.post('/api/alertes-manager', requireAuth, (req, res) => {
 });
 
 // GET : l'admin récupère toutes les alertes
-app.get('/api/alertes-manager', requireAdmin, (req, res) => {
+app.get('/api/alertes-manager', requireAdmin, async (req, res) => {
   const data = loadAlertes();
   res.json(data.alertes);
 });
 
 // PUT : marquer une alerte comme lue
-app.put('/api/alertes-manager/:id/lu', requireAdmin, (req, res) => {
+app.put('/api/alertes-manager/:id/lu', requireAdmin, async (req, res) => {
   const data = loadAlertes();
   const idx = data.alertes.findIndex(a => a.id === parseInt(req.params.id));
   if (idx >= 0) { data.alertes[idx].lu = true; saveAlertes(data); }
@@ -1115,14 +1112,14 @@ app.put('/api/alertes-manager/:id/lu', requireAdmin, (req, res) => {
 });
 
 // DELETE : supprimer une alerte
-app.delete('/api/alertes-manager/:id', requireAdmin, (req, res) => {
+app.delete('/api/alertes-manager/:id', requireAdmin, async (req, res) => {
   const data = loadAlertes();
   data.alertes = data.alertes.filter(a => a.id !== parseInt(req.params.id));
   saveAlertes(data);
   res.json({ success: true });
 });// ─── PLANNING COACH INTÉGRATEUR ─────────────────────────────────────────────────────────────────────────────────────
-app.get('/api/planning-coach/:userId', requireAuth, (req, res) => {
-  const users = loadUsers();
+app.get('/api/planning-coach/:userId', requireAuth, async (req, res) => {
+  const users = await loadUsers();
   const userId = parseInt(req.params.userId);
   const user = users.find(u => u.id === userId);
   if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
@@ -1152,8 +1149,8 @@ app.get('/api/planning-coach/:userId', requireAuth, (req, res) => {
 });
 
 // ─── SUIVI ÉVALUATION ─────────────────────────────────────────────────────────────────────────────────────
-app.get('/api/suivi-eval/:userId', requireAuth, (req, res) => {
-  const users = loadUsers();
+app.get('/api/suivi-eval/:userId', requireAuth, async (req, res) => {
+  const users = await loadUsers();
   const userId = parseInt(req.params.userId);
   const user = users.find(u => u.id === userId);
   if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
@@ -1173,7 +1170,7 @@ app.get('/api/suivi-eval/:userId', requireAuth, (req, res) => {
   res.json(suivi);
 });
 // ─── PARRAINAGE ───────────────────────────────────────────────────────────────────────────────────────────────────
-app.post('/api/parrainage', requireAuth, (req, res) => {
+app.post('/api/parrainage', requireAuth, async (req, res) => {
   const { prenom, nom, email, tel, commentaire, parrainId, parrainNom } = req.body;
   if (!prenom || !nom || !email) return res.status(400).json({ success: false, message: 'Champs obligatoires manquants.' });
   const filePath = path.join(__dirname, 'data', 'parrainages.json');
@@ -1191,7 +1188,7 @@ app.post('/api/parrainage', requireAuth, (req, res) => {
   res.json({ success: true });
 });
 
-app.get('/api/parrainages', requireAuth, (req, res) => {
+app.get('/api/parrainages', requireAuth, async (req, res) => {
   const role = req.session.user.role;
   if (!['admin','rh','pmo','pdg','recruteur'].includes(role)) return res.status(403).json({ error: 'Accès refusé' });
   const filePath = path.join(__dirname, 'data', 'parrainages.json');
@@ -1212,7 +1209,7 @@ app.post('/api/upload-fichier', requireAuth, upload.single('fichier'), (req, res
 });
 
 // ─── RESSOURCES PMO ──────────────────────────────────────────────────────────────────────────────────────────────
-app.post('/api/ressources-pmo', requireAuth, (req, res) => {
+app.post('/api/ressources-pmo', requireAuth, async (req, res) => {
   const role = req.session.user.role;
   if (role !== 'pmo') return res.status(403).json({ error: 'Accès réservé au PMO' });
   const { titre, categorie, type, taille, description, url, icone } = req.body;
@@ -1226,7 +1223,7 @@ app.post('/api/ressources-pmo', requireAuth, (req, res) => {
   res.json({ success: true, ressource: newR });
 });
 
-app.delete('/api/ressources-pmo/:id', requireAuth, (req, res) => {
+app.delete('/api/ressources-pmo/:id', requireAuth, async (req, res) => {
   const role = req.session.user.role;
   if (role !== 'pmo') return res.status(403).json({ error: 'Accès réservé au PMO' });
   const id = parseInt(req.params.id);
@@ -1239,7 +1236,7 @@ app.delete('/api/ressources-pmo/:id', requireAuth, (req, res) => {
 });
 
 // ─── PARCOURS PMO ────────────────────────────────────────────────────────────────────────────────────────────────
-app.post('/api/parcours-pmo', requireAuth, (req, res) => {
+app.post('/api/parcours-pmo', requireAuth, async (req, res) => {
   const role = req.session.user.role;
   if (role !== 'pmo') return res.status(403).json({ error: 'Accès réservé au PMO' });
   const { titre, phase, duree, description } = req.body;
@@ -1253,7 +1250,7 @@ app.post('/api/parcours-pmo', requireAuth, (req, res) => {
   res.json({ success: true, etape: newE });
 });
 
-app.delete('/api/parcours-pmo/:id', requireAuth, (req, res) => {
+app.delete('/api/parcours-pmo/:id', requireAuth, async (req, res) => {
   const role = req.session.user.role;
   if (role !== 'pmo') return res.status(403).json({ error: 'Accès réservé au PMO' });
   const id = parseInt(req.params.id);
@@ -1266,7 +1263,7 @@ app.delete('/api/parcours-pmo/:id', requireAuth, (req, res) => {
 });
 
 // ─── PLANNING COACH PMO ──────────────────────────────────────────────────────────────────────────────────────────
-app.get('/api/planning-coach-pmo', requireAuth, (req, res) => {
+app.get('/api/planning-coach-pmo', requireAuth, async (req, res) => {
   const role = req.session.user.role;
   if (role !== 'pmo') return res.status(403).json({ error: 'Accès réservé au PMO' });
   const filePath = path.join(__dirname, 'data', 'planning_coach.json');
@@ -1275,7 +1272,7 @@ app.get('/api/planning-coach-pmo', requireAuth, (req, res) => {
   res.json(planning);
 });
 
-app.post('/api/planning-coach-pmo', requireAuth, (req, res) => {
+app.post('/api/planning-coach-pmo', requireAuth, async (req, res) => {
   const role = req.session.user.role;
   if (role !== 'pmo') return res.status(403).json({ error: 'Accès réservé au PMO' });
   const { collaborateur, coach, date, heure, type, objectif, statut } = req.body;
@@ -1289,7 +1286,7 @@ app.post('/api/planning-coach-pmo', requireAuth, (req, res) => {
   res.json({ success: true, seance: newS });
 });
 
-app.delete('/api/planning-coach-pmo/:id', requireAuth, (req, res) => {
+app.delete('/api/planning-coach-pmo/:id', requireAuth, async (req, res) => {
   const role = req.session.user.role;
   if (role !== 'pmo') return res.status(403).json({ error: 'Accès réservé au PMO' });
   const id = parseInt(req.params.id);
@@ -1306,7 +1303,7 @@ app.delete('/api/planning-coach-pmo/:id', requireAuth, (req, res) => {
 // ─── API GESTION PMO ─────────────────────────────────────────────────────────
 
 // POST /api/ressources-pmo — Ajouter une ressource
-app.post('/api/ressources-pmo', requireAdmin, (req, res) => {
+app.post('/api/ressources-pmo', requireAdmin, async (req, res) => {
   const role = req.session.user.role;
   if (!['admin','rh','pmo','pdg'].includes(role)) return res.status(403).json({ error: 'Accès refusé' });
   const { titre, categorie, type, taille, description, url, icone } = req.body;
@@ -1322,7 +1319,7 @@ app.post('/api/ressources-pmo', requireAdmin, (req, res) => {
 });
 
 // DELETE /api/ressources-pmo/:id — Supprimer une ressource custom
-app.delete('/api/ressources-pmo/:id', requireAdmin, (req, res) => {
+app.delete('/api/ressources-pmo/:id', requireAdmin, async (req, res) => {
   const role = req.session.user.role;
   if (!['admin','rh','pmo','pdg'].includes(role)) return res.status(403).json({ error: 'Accès refusé' });
   const id = parseInt(req.params.id);
@@ -1337,7 +1334,7 @@ app.delete('/api/ressources-pmo/:id', requireAdmin, (req, res) => {
 });
 
 // POST /api/parcours-pmo — Ajouter une étape au parcours
-app.post('/api/parcours-pmo', requireAdmin, (req, res) => {
+app.post('/api/parcours-pmo', requireAdmin, async (req, res) => {
   const role = req.session.user.role;
   if (!['admin','rh','pmo','pdg'].includes(role)) return res.status(403).json({ error: 'Accès refusé' });
   const { titre, phase, duree, description } = req.body;
@@ -1353,7 +1350,7 @@ app.post('/api/parcours-pmo', requireAdmin, (req, res) => {
 });
 
 // DELETE /api/parcours-pmo/:id — Supprimer une étape du parcours
-app.delete('/api/parcours-pmo/:id', requireAdmin, (req, res) => {
+app.delete('/api/parcours-pmo/:id', requireAdmin, async (req, res) => {
   const role = req.session.user.role;
   if (!['admin','rh','pmo','pdg'].includes(role)) return res.status(403).json({ error: 'Accès refusé' });
   const id = parseInt(req.params.id);
@@ -1370,7 +1367,7 @@ app.delete('/api/parcours-pmo/:id', requireAdmin, (req, res) => {
 // Fichiers de données coach
 const coachDataPath = (file) => path.join(__dirname, 'data', file);
 const loadCoachData = (file) => { try { return JSON.parse(fs.readFileSync(coachDataPath(file), 'utf8')); } catch(e) { return []; } };
-const saveCoachData = (file, data) => fs.writeFileSync(coachDataPath(file), JSON.stringify(data, null, 2));
+const saveCoachData = async (file, data) => { await writeDataA(file, data); };
 
 // Middleware : seul le coach (et admin/rh/pmo/pdg) peut accéder
 const requireCoach = (req, res, next) => {
@@ -1380,105 +1377,105 @@ const requireCoach = (req, res, next) => {
 };
 
 // GET /api/coach/seances — Toutes les séances du coach connecté
-app.get('/api/coach/seances', requireAuth, requireCoach, (req, res) => {
-  const seances = loadCoachData('coach_seances.json');
+app.get('/api/coach/seances', requireAuth, requireCoach, async (req, res) => {
+  const seances = await loadCoachData('coach_seances.json');
   const coachLogin = req.session.user.login;
   const filtered = req.session.user.role === 'coach' ? seances.filter(s => s.coachLogin === coachLogin) : seances;
   res.json(filtered);
 });
 
 // POST /api/coach/seances — Créer une séance
-app.post('/api/coach/seances', requireAuth, requireCoach, (req, res) => {
+app.post('/api/coach/seances', requireAuth, requireCoach, async (req, res) => {
   const { ccId, ccNom, titre, date, heure, duree, type, statut, notes } = req.body;
   if (!ccId || !date || !titre) return res.status(400).json({ error: 'ccId, titre et date obligatoires' });
-  const seances = loadCoachData('coach_seances.json');
+  const seances = await loadCoachData('coach_seances.json');
   const newS = { id: Date.now(), ccId: parseInt(ccId), ccNom: ccNom||'', titre, date, heure: heure||'09:00', duree: duree||'1h', type: type||'Suivi', statut: statut||'planifie', notes: notes||'', coachLogin: req.session.user.login, coachNom: req.session.user.prenom+' '+req.session.user.nom, dateCreation: new Date().toLocaleDateString('fr-FR') };
   seances.push(newS);
-  saveCoachData('coach_seances.json', seances);
+  await saveCoachData('coach_seances.json', seances);
   res.json({ success: true, seance: newS });
 });
 
 // PUT /api/coach/seances/:id — Modifier statut/notes d'une séance
-app.put('/api/coach/seances/:id', requireAuth, requireCoach, (req, res) => {
+app.put('/api/coach/seances/:id', requireAuth, requireCoach, async (req, res) => {
   const id = parseInt(req.params.id);
-  const seances = loadCoachData('coach_seances.json');
+  const seances = await loadCoachData('coach_seances.json');
   const idx = seances.findIndex(s => s.id === id);
   if (idx === -1) return res.status(404).json({ error: 'Séance non trouvée' });
   seances[idx] = { ...seances[idx], ...req.body };
-  saveCoachData('coach_seances.json', seances);
+  await saveCoachData('coach_seances.json', seances);
   res.json({ success: true, seance: seances[idx] });
 });
 
 // DELETE /api/coach/seances/:id — Supprimer une séance
-app.delete('/api/coach/seances/:id', requireAuth, requireCoach, (req, res) => {
-  let seances = loadCoachData('coach_seances.json');
+app.delete('/api/coach/seances/:id', requireAuth, requireCoach, async (req, res) => {
+  let seances = await loadCoachData('coach_seances.json');
   seances = seances.filter(s => s.id !== parseInt(req.params.id));
-  saveCoachData('coach_seances.json', seances);
+  await saveCoachData('coach_seances.json', seances);
   res.json({ success: true });
 });
 
 // GET /api/coach/plan-action — Plans d'action par CC
-app.get('/api/coach/plan-action', requireAuth, requireCoach, (req, res) => {
-  const plans = loadCoachData('coach_plan_action.json');
+app.get('/api/coach/plan-action', requireAuth, requireCoach, async (req, res) => {
+  const plans = await loadCoachData('coach_plan_action.json');
   const coachLogin = req.session.user.login;
   const filtered = req.session.user.role === 'coach' ? plans.filter(p => p.coachLogin === coachLogin) : plans;
   res.json(filtered);
 });
 
 // POST /api/coach/plan-action — Ajouter une action
-app.post('/api/coach/plan-action', requireAuth, requireCoach, (req, res) => {
+app.post('/api/coach/plan-action', requireAuth, requireCoach, async (req, res) => {
   const { ccId, ccNom, action, priorite, echeance, objectif, avancement } = req.body;
   if (!ccId || !action) return res.status(400).json({ error: 'ccId et action obligatoires' });
-  const plans = loadCoachData('coach_plan_action.json');
+  const plans = await loadCoachData('coach_plan_action.json');
   const newA = { id: Date.now(), ccId: parseInt(ccId), ccNom: ccNom||'', action, priorite: priorite||'moyenne', echeance: echeance||'', objectif: objectif||'', avancement: parseInt(avancement)||0, statut: 'en_cours', coachLogin: req.session.user.login, dateCreation: new Date().toLocaleDateString('fr-FR') };
   plans.push(newA);
-  saveCoachData('coach_plan_action.json', plans);
+  await saveCoachData('coach_plan_action.json', plans);
   res.json({ success: true, action: newA });
 });
 
 // PUT /api/coach/plan-action/:id — Mettre à jour une action (avancement, statut)
-app.put('/api/coach/plan-action/:id', requireAuth, requireCoach, (req, res) => {
+app.put('/api/coach/plan-action/:id', requireAuth, requireCoach, async (req, res) => {
   const id = parseInt(req.params.id);
-  const plans = loadCoachData('coach_plan_action.json');
+  const plans = await loadCoachData('coach_plan_action.json');
   const idx = plans.findIndex(p => p.id === id);
   if (idx === -1) return res.status(404).json({ error: 'Action non trouvée' });
   plans[idx] = { ...plans[idx], ...req.body };
-  saveCoachData('coach_plan_action.json', plans);
+  await saveCoachData('coach_plan_action.json', plans);
   res.json({ success: true, action: plans[idx] });
 });
 
 // DELETE /api/coach/plan-action/:id — Supprimer une action
-app.delete('/api/coach/plan-action/:id', requireAuth, requireCoach, (req, res) => {
-  let plans = loadCoachData('coach_plan_action.json');
+app.delete('/api/coach/plan-action/:id', requireAuth, requireCoach, async (req, res) => {
+  let plans = await loadCoachData('coach_plan_action.json');
   plans = plans.filter(p => p.id !== parseInt(req.params.id));
-  saveCoachData('coach_plan_action.json', plans);
+  await saveCoachData('coach_plan_action.json', plans);
   res.json({ success: true });
 });
 
 // GET /api/coach/taches — Tâches réalisées par le coach
-app.get('/api/coach/taches', requireAuth, requireCoach, (req, res) => {
-  const taches = loadCoachData('coach_taches.json');
+app.get('/api/coach/taches', requireAuth, requireCoach, async (req, res) => {
+  const taches = await loadCoachData('coach_taches.json');
   const coachLogin = req.session.user.login;
   const filtered = req.session.user.role === 'coach' ? taches.filter(t => t.coachLogin === coachLogin) : taches;
   res.json(filtered);
 });
 
 // POST /api/coach/taches — Ajouter une tâche réalisée
-app.post('/api/coach/taches', requireAuth, requireCoach, (req, res) => {
+app.post('/api/coach/taches', requireAuth, requireCoach, async (req, res) => {
   const { ccId, ccNom, titre, description, date, categorie, duree } = req.body;
   if (!ccId || !titre) return res.status(400).json({ error: 'ccId et titre obligatoires' });
-  const taches = loadCoachData('coach_taches.json');
+  const taches = await loadCoachData('coach_taches.json');
   const newT = { id: Date.now(), ccId: parseInt(ccId), ccNom: ccNom||'', titre, description: description||'', date: date||new Date().toLocaleDateString('fr-FR'), categorie: categorie||'suivi', duree: duree||'', coachLogin: req.session.user.login, dateCreation: new Date().toLocaleDateString('fr-FR') };
   taches.push(newT);
-  saveCoachData('coach_taches.json', taches);
+  await saveCoachData('coach_taches.json', taches);
   res.json({ success: true, tache: newT });
 });
 
 // DELETE /api/coach/taches/:id — Supprimer une tâche
-app.delete('/api/coach/taches/:id', requireAuth, requireCoach, (req, res) => {
-  let taches = loadCoachData('coach_taches.json');
+app.delete('/api/coach/taches/:id', requireAuth, requireCoach, async (req, res) => {
+  let taches = await loadCoachData('coach_taches.json');
   taches = taches.filter(t => t.id !== parseInt(req.params.id));
-  saveCoachData('coach_taches.json', taches);
+  await saveCoachData('coach_taches.json', taches);
   res.json({ success: true });
 });
 
