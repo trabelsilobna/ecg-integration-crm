@@ -84,6 +84,22 @@
       "heureConnexion": null,
       "statut": "absent",
       "retardMinutes": 0
+    },
+    {
+      "id": 1776191078346,
+      "userId": 12,
+      "date": "2026-04-14",
+      "heureConnexion": null,
+      "statut": "absent",
+      "retardMinutes": 0
+    },
+    {
+      "id": 1776191078347,
+      "userId": 13,
+      "date": "2026-04-14",
+      "heureConnexion": null,
+      "statut": "absent",
+      "retardMinutes": 0
     }
   ]
 }
