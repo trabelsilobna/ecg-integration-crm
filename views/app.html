@@ -1320,7 +1320,7 @@
 <!-- MODAL NOUVEAU COLLABORATEUR -->
 <div class="modal-overlay" id="modalNewCollab">
   <div class="modal">
-    <div class="modal-title">➕ Nouveau collaborateur</div>
+    <div class="modal-title">➕ Nouveau compte utilisateur</div>
     <div class="form-row">
       <div class="form-group"><label>Prénom *</label><input type="text" id="newPrenom" placeholder="Prénom" /></div>
       <div class="form-group"><label>Nom *</label><input type="text" id="newNom" placeholder="Nom" /></div>
@@ -1328,6 +1328,20 @@
     <div class="form-row">
       <div class="form-group"><label>Email *</label><input type="email" id="newEmail" placeholder="email@ecg-group.com" /></div>
       <div class="form-group"><label>Login *</label><input type="text" id="newLogin" placeholder="prenom.nom" /></div>
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label style="display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:6px">Rôle / Profil *</label>
+      <select id="newRole" style="width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;color:#1e293b;background:#fff">
+        <option value="collaborateur">🙋 Conseiller Commercial (CC)</option>
+        <option value="coach">🤝 Coach Intégrateur</option>
+        <option value="formateur">📚 Formateur</option>
+        <option value="recruteur">🎯 Recruteur</option>
+        <option value="manager">🏢 Manager</option>
+        <option value="rh">👤 Responsable RH</option>
+        <option value="directeur_commercial">💼 Directeur Commercial</option>
+        <option value="pmo">📋 PMO</option>
+        <option value="admin">👑 Administrateur</option>
+      </select>
     </div>
     <div class="form-row">
       <div class="form-group"><label>Poste</label><input type="text" id="newPoste" placeholder="Intitulé du poste" /></div>
@@ -1671,6 +1685,13 @@ function viewParcours(userId) {
 
 function openModalNewCollab() {
   document.getElementById('newDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('newRole').value = 'collaborateur';
+  document.getElementById('newPrenom').value = '';
+  document.getElementById('newNom').value = '';
+  document.getElementById('newEmail').value = '';
+  document.getElementById('newLogin').value = '';
+  document.getElementById('newPoste').value = '';
+  document.getElementById('newPassword').value = '';
   document.getElementById('modalNewCollab').classList.add('open');
 }
 
@@ -1680,6 +1701,7 @@ async function createCollab() {
     nom: document.getElementById('newNom').value,
     email: document.getElementById('newEmail').value,
     login: document.getElementById('newLogin').value,
+    role: document.getElementById('newRole').value || 'collaborateur',
     poste: document.getElementById('newPoste').value,
     site: document.getElementById('newSite').value,
     departement: document.getElementById('newDept').value,

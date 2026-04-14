@@ -76,6 +76,14 @@
       "heureConnexion": "00:18",
       "statut": "present",
       "retardMinutes": 0
+    },
+    {
+      "id": 1776167435253,
+      "userId": 4,
+      "date": "2026-04-14",
+      "heureConnexion": null,
+      "statut": "absent",
+      "retardMinutes": 0
     }
   ]
 }
