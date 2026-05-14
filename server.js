@@ -1128,27 +1128,52 @@ app.get('/api/planning-coach/:userId', requireAuth, async (req, res) => {
   const users = await readDataA('users.json');
   const userId = parseInt(req.params.userId);
   const user = users.find(u => u.id === userId);
-  if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
-  // Seul le CC lui-même, son coach assigné, ou un admin peut voir ce planning
-  const isOwner = req.session.user?.id === userId;
-  const isCoach = ['coach','admin','rh','pmo','pdg','manager','conseiller'].includes(req.session.user?.role);
-  if (!isOwner && !isCoach) return res.status(403).json({ error: 'Accès refusé' });
-  // Données de démonstration
+  if (!user) return res.status(404).json({ error: 'Utilisateur non trouve' });
+  const rolesAutorises = ['coach','admin','rh','pmo','pdg','manager','conseiller','formateur'];
+  const isOwner = req.session.user && req.session.user.id === userId;
+  const isAuthorise = rolesAutorises.includes(req.session.user && req.session.user.role);
+  if (!isOwner && !isAuthorise) return res.status(403).json({ error: 'Acces refuse' });
   const planning = {
-    coachNom: 'Adam Perez',
-    noteCoach: 'Vous progressez très bien ! Continuez à travailler sur votre argumentaire produit et la gestion des objections. Je suis disponible pour toute question entre nos séances.',
+    programme: 'Planning Unifie ECG Pereire - 22 Jours',
+    coachNom: user.responsableCoach || 'Coach Integrateur ECG',
+    noteCoach: 'Programme 22 jours - 4 phases : Socle & Fondations, Techniques de Vente, Compagnies & Produits, Autonomie & Performance. 7 TOPs, 11 compagnies.',
+    phases: [
+      { id: 1, nom: 'Phase 1 - Socle & Fondations', jours: 'J1-J5', tops: 'TOPs 1, 2, 3 & 7', objectif: 'Conformite, premieres accroches, fondations du metier' },
+      { id: 2, nom: 'Phase 2 - Techniques de Vente', jours: 'J6-J11', tops: 'TOPs 4, 5 & 6', objectif: 'Objections, garanties, vente additionnelle' },
+      { id: 3, nom: 'Phase 3 - Compagnies & Produits', jours: 'J12-J17', tops: 'TOPs 5 & 7', objectif: 'Maitrise des 11 compagnies - score min. 16/20' },
+      { id: 4, nom: 'Phase 4 - Autonomie & Performance', jours: 'J18-J22', tops: '7 TOPs', objectif: 'Production autonome, certification interne J22' },
+    ],
     seances: [
-      { id: 1, titre: 'Accélérateur terrain — Prise de contact client', date: '15 Avr 2026', duree: '2h', statut: 'fait' },
-      { id: 2, titre: 'Suivi objectifs commerciaux — Semaine 2', date: '22 Avr 2026', duree: '1h30', statut: 'fait' },
-      { id: 3, titre: 'Accompagnement terrain — Rendez-vous client', date: '29 Avr 2026', duree: '3h', statut: 'planifie' },
-      { id: 4, titre: 'Bilan mi-parcours — Analyse des KPIs', date: '06 Mai 2026', duree: '1h', statut: 'en_attente' },
-      { id: 5, titre: 'Préparation évaluation manager', date: '13 Mai 2026', duree: '1h30', statut: 'en_attente' },
+      { id: 1,  jour: 'J1',  phase: 1, titre: 'Accueil, Conformite & Immersion', duree: '9h', statut: 'planifie', tops: 'TOP 1 & 7', objectif: 'Phrase ORIAS memorisee, quiz conformite 10/10' },
+      { id: 2,  jour: 'J2',  phase: 1, titre: "L'Accroche - Premier Pilier", duree: '9h', statut: 'planifie', tops: 'TOP 1 & 3', objectif: '10 simulations accroche, 5 accroches personnelles' },
+      { id: 3,  jour: 'J3',  phase: 1, titre: 'La Decouverte Client', duree: '9h', statut: 'planifie', tops: 'TOP 2', objectif: '6 questions de decouverte, 8 simulations profils varies' },
+      { id: 4,  jour: 'J4',  phase: 1, titre: 'Le Script & Forces Personnelles', duree: '9h', statut: 'planifie', tops: 'TOP 3 & 4', objectif: 'Script complet maitrise, simulation x3 chronometrees' },
+      { id: 5,  jour: 'J5',  phase: 1, titre: 'Bilan Phase 1 - Test & Plan Action', duree: '9h', statut: 'planifie', tops: 'TOPs 1-3', objectif: 'Test ecrit conformite + trame, bilans individuels' },
+      { id: 6,  jour: 'J6',  phase: 2, titre: 'Methode GROW + Reformulation', duree: '9h', statut: 'planifie', tops: 'TOP 2 & 4', objectif: 'GROW applique, 5 formules de reformulation' },
+      { id: 7,  jour: 'J7',  phase: 2, titre: 'Voix, Energie, Para-verbal', duree: '9h', statut: 'planifie', tops: 'TOP 3', objectif: '10 rebonds objection prix, boite a reponses' },
+      { id: 8,  jour: 'J8',  phase: 2, titre: 'Desamorcer un Client en Colere', duree: '9h', statut: 'planifie', tops: 'TOP 4', objectif: '4 etapes desescalade, 3 rounds simulation' },
+      { id: 9,  jour: 'J9',  phase: 2, titre: 'Garanties & Vente Additionnelle', duree: '9h', statut: 'planifie', tops: 'TOP 5 & 6', objectif: '10 simulations VA, methode CAP/SONCAS' },
+      { id: 10, jour: 'J10', phase: 2, titre: 'Indicateurs & Performance', duree: '9h', statut: 'planifie', tops: 'TOP 4 & 5', objectif: 'Lecture stats S2, simulation objections x2' },
+      { id: 11, jour: 'J11', phase: 2, titre: 'Bilan Phase 2', duree: '9h', statut: 'planifie', tops: 'TOPs 4-6', objectif: 'Bilans individuels progression J5-J11, grille 30 criteres' },
+      { id: 12, jour: 'J12', phase: 3, titre: 'APIVIA + APRIL', duree: '9h', statut: 'planifie', tops: 'TOP 6', objectif: 'Maitrise APIVIA & APRIL, DMT < 4 min' },
+      { id: 13, jour: 'J13', phase: 3, titre: 'NEOLIANE + ZENIOO + ASAF', duree: '9h', statut: 'planifie', tops: 'TOP 2 & 5', objectif: 'Profiler 5 clients fictifs, gestion emotions' },
+      { id: 14, jour: 'J14', phase: 3, titre: 'MEANA + FMA + COVERITY', duree: '9h', statut: 'planifie', tops: 'TOP 5', objectif: 'Trinomes co-developpement, rencontre tripartite' },
+      { id: 15, jour: 'J15', phase: 3, titre: 'WAZARI + 2M2C + SMATIS', duree: '9h', statut: 'planifie', tops: 'TOP 7', objectif: 'Quiz 20 questions 11 compagnies' },
+      { id: 16, jour: 'J16', phase: 3, titre: 'Anti-Resiliation & Assertivite', duree: '9h', statut: 'planifie', tops: 'TOP 4 & 6', objectif: '7 raisons resiliation, closing solide' },
+      { id: 17, jour: 'J17', phase: 3, titre: 'Bilan Phase 3 - Test Produits', duree: '9h', statut: 'planifie', tops: 'TOPs 5-7', objectif: 'Test oral 10 profils, score min. 16/20' },
+      { id: 18, jour: 'J18', phase: 4, titre: 'Reflexes Autonomes', duree: '9h', statut: 'planifie', tops: '7 TOPs', objectif: 'Checklist autonomie, appels sans interruption' },
+      { id: 19, jour: 'J19', phase: 4, titre: 'Feedback Pairs - Coach en Retrait', duree: '9h', statut: 'planifie', tops: '7 TOPs', objectif: 'Auto-evaluation, simulation finale enregistree' },
+      { id: 20, jour: 'J20', phase: 4, titre: 'Challenge Expert du Jour', duree: '9h', statut: 'planifie', tops: 'TOP 5, 6 & 7', objectif: '1 vente conforme + 1 garantie + 1 objection' },
+      { id: 21, jour: 'J21', phase: 4, titre: 'Simulation Finale & Certification', duree: '9h', statut: 'planifie', tops: '7 TOPs', objectif: '2 appels enregistres, grille 40 criteres' },
+      { id: 22, jour: 'J22', phase: 4, titre: 'Certification & Lancement Terrain', duree: '9h', statut: 'planifie', tops: '7 TOPs', objectif: 'Quiz 80% min, certification interne, rapport RH' },
     ],
     planActions: [
-      { action: 'Maîtriser l’argumentaire Apivia Santé', priorite: 'haute', echeance: '30 Avr 2026', objectif: 'Score > 80% au test produit', avancement: 65 },
-      { action: 'Atteindre 15 appels/jour', priorite: 'haute', echeance: '30 Avr 2026', objectif: 'Volume d’activité hebdomadaire', avancement: 80 },
-      { action: 'Saisir toutes les activités dans le CRM', priorite: 'moyenne', echeance: 'Continu', objectif: 'Taux de saisie > 95%', avancement: 90 },
-      { action: 'Travailler la gestion des objections', priorite: 'moyenne', echeance: '15 Mai 2026', objectif: 'Taux de transformation > 20%', avancement: 40 },
+      { action: 'Maitriser la phrase ouverture ORIAS', priorite: 'haute', echeance: 'J1', objectif: 'Recitation parfaite 0 erreur', avancement: 0 },
+      { action: 'Construire son accroche personnalisee', priorite: 'haute', echeance: 'J4', objectif: 'Accroche validee par le manager', avancement: 0 },
+      { action: 'Maitriser les 6 questions de decouverte', priorite: 'haute', echeance: 'J5', objectif: 'Score 8/10 au test decouverte', avancement: 0 },
+      { action: 'Traiter les 7 objections avec methode ARC', priorite: 'haute', echeance: 'J11', objectif: 'Taux de transformation > 20%', avancement: 0 },
+      { action: 'Maitriser les 11 compagnies partenaires', priorite: 'haute', echeance: 'J17', objectif: 'Score minimum 16/20 au test oral', avancement: 0 },
+      { action: 'Valider la certification interne J22', priorite: 'haute', echeance: 'J22', objectif: 'Quiz 80% + simulation validee', avancement: 0 },
     ]
   };
   res.json(planning);
