@@ -1125,13 +1125,13 @@ app.delete('/api/alertes-manager/:id', requireAdmin, async (req, res) => {
   res.json({ success: true });
 });// ─── PLANNING COACH INTÉGRATEUR ─────────────────────────────────────────────────────────────────────────────────────
 app.get('/api/planning-coach/:userId', requireAuth, async (req, res) => {
-  const users = await loadUsers();
+  const users = await readDataA('users.json');
   const userId = parseInt(req.params.userId);
   const user = users.find(u => u.id === userId);
   if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
   // Seul le CC lui-même, son coach assigné, ou un admin peut voir ce planning
-  const isOwner = req.session.userId === userId;
-  const isCoach = req.session.userRole === 'coach' || req.session.userRole === 'admin' || req.session.userRole === 'rh' || req.session.userRole === 'pmo' || req.session.userRole === 'pdg';
+  const isOwner = req.session.user?.id === userId;
+  const isCoach = ['coach','admin','rh','pmo','pdg','manager','conseiller'].includes(req.session.user?.role);
   if (!isOwner && !isCoach) return res.status(403).json({ error: 'Accès refusé' });
   // Données de démonstration
   const planning = {
@@ -1156,12 +1156,12 @@ app.get('/api/planning-coach/:userId', requireAuth, async (req, res) => {
 
 // ─── SUIVI ÉVALUATION ─────────────────────────────────────────────────────────────────────────────────────
 app.get('/api/suivi-eval/:userId', requireAuth, async (req, res) => {
-  const users = await loadUsers();
+  const users = await readDataA('users.json');
   const userId = parseInt(req.params.userId);
   const user = users.find(u => u.id === userId);
   if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
-  const isOwner = req.session.userId === userId;
-  const isAdmin = ['admin','rh','pmo','pdg','coach','formateur','recruteur'].includes(req.session.userRole);
+  const isOwner = req.session.user?.id === userId;
+  const isAdmin = ['admin','rh','pmo','pdg','coach','formateur','recruteur'].includes(req.session.user?.role);
   if (!isOwner && !isAdmin) return res.status(403).json({ error: 'Accès refusé' });
   // Données de démonstration
   const suivi = {
