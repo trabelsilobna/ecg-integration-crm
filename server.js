@@ -1271,16 +1271,33 @@ app.delete('/api/parcours-pmo/:id', requireAuth, async (req, res) => {
 // ─── PLANNING COACH PMO ──────────────────────────────────────────────────────────────────────────────────────────
 app.get('/api/planning-coach-pmo', requireAuth, async (req, res) => {
   const role = req.session.user.role;
-  if (role !== 'pmo') return res.status(403).json({ error: 'Accès réservé au PMO' });
+  const rolesAutorises = ['admin', 'pmo', 'rh', 'pdg', 'coach', 'formateur', 'manager', 'conseiller'];
+  // Le recruteur n'a pas accès au planning
+  if (!rolesAutorises.includes(role)) return res.status(403).json({ error: 'Accès refusé' });
+  
+  // Utiliser PostgreSQL si disponible, sinon fichier JSON
+  try {
+    if (process.env.DATABASE_URL) {
+      const result = await db.query('SELECT * FROM planning_coach ORDER BY date ASC');
+      return res.json(result.rows);
+    }
+  } catch(e) { /* fallback JSON */ }
+  
   const filePath = path.join(__dirname, 'data', 'planning_coach.json');
   let planning = [];
   try { planning = JSON.parse(fs.readFileSync(filePath, 'utf8')); } catch(e) { planning = []; }
+  
+  // Filtrer selon le rôle : coach voit seulement ses séances
+  if (role === 'coach') {
+    planning = planning.filter(s => s.coach === req.session.user.login || s.coach === req.session.user.nom);
+  }
   res.json(planning);
 });
 
 app.post('/api/planning-coach-pmo', requireAuth, async (req, res) => {
   const role = req.session.user.role;
-  if (role !== 'pmo') return res.status(403).json({ error: 'Accès réservé au PMO' });
+  const rolesCreation = ['admin', 'pmo', 'rh', 'pdg', 'coach'];
+  if (!rolesCreation.includes(role)) return res.status(403).json({ error: 'Accès refusé' });
   const { collaborateur, coach, date, heure, type, objectif, statut } = req.body;
   if (!collaborateur || !date) return res.status(400).json({ error: 'Collaborateur et date obligatoires' });
   const filePath = path.join(__dirname, 'data', 'planning_coach.json');
@@ -1294,7 +1311,8 @@ app.post('/api/planning-coach-pmo', requireAuth, async (req, res) => {
 
 app.delete('/api/planning-coach-pmo/:id', requireAuth, async (req, res) => {
   const role = req.session.user.role;
-  if (role !== 'pmo') return res.status(403).json({ error: 'Accès réservé au PMO' });
+  const rolesCreation = ['admin', 'pmo', 'rh', 'pdg', 'coach'];
+  if (!rolesCreation.includes(role)) return res.status(403).json({ error: 'Accès refusé' });
   const id = parseInt(req.params.id);
   const filePath = path.join(__dirname, 'data', 'planning_coach.json');
   let planning = [];
