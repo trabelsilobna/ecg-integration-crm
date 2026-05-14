@@ -1,0 +1,165 @@
+{
+  "titre": "Planning Unifié d'Intégration — Conseiller en Assurance Santé",
+  "programme": "4 Semaines / 22 Jours — TOPs intégrés",
+  "societe": "ECG PEREIRE ASSURANCES",
+  "confidentiel": true,
+  "rolesAcces": ["admin", "pmo", "rh", "pdg", "coach", "formateur", "manager", "conseiller"],
+  "rolesCaches": ["recruteur"],
+  "phases": [
+    {
+      "id": 1,
+      "titre": "PHASE 1 — SOCLE, CONFORMITÉ & PREMIÈRES ACCROCHES",
+      "semaine": "Semaine 1",
+      "jours": "J1 à J5",
+      "horaires": "9h00 – 18h00",
+      "tops": ["TOP 1", "TOP 2", "TOP 3", "TOP 7"],
+      "jours_detail": [
+        {
+          "jour": "J1",
+          "titre": "Accueil, Conformité & Immersion",
+          "objectif": "Le conseiller connaît les règles de conformité par cœur, comprend les bases du marché, démarre ses premières tentatives d'accroche.",
+          "seances": [
+            {"heure": "9h00", "type": "ENCADREMENT", "activite": "Briefing manager + coach", "details": "Présentation du groupe, objectifs 22 jours, accès outils."},
+            {"heure": "9h30", "type": "FORMATION", "activite": "Conformité & ORIAS (J1 obligatoire)", "details": "ORIAS expliqué + phrase légale mémorisée. Quiz conformité : 10 questions, score 10/10 exigé."},
+            {"heure": "10h30", "type": "DOUBLE ÉCOUTE", "activite": "Écoute silencieuse — Groupe A", "details": "Observation pure : posture, voix, aisance CRM, gestion du silence. TOP 1 & 7 observés."},
+            {"heure": "12h00", "type": "PAUSE", "activite": "Déjeuner 12h/13h30", "details": ""},
+            {"heure": "13h30", "type": "DOUBLE ÉCOUTE", "activite": "Écoute silencieuse — Groupe B", "details": "Même protocole. Focus TOPs 1 à 3."},
+            {"heure": "15h30", "type": "ÉCOUTE INDIV.", "activite": "Tour de table individuel (5 min/personne)", "details": "'Comment tu te sens ? Qu'est-ce qui t'a surpris ?'"},
+            {"heure": "17h00", "type": "BILAN", "activite": "Lecture de 5 bandes réelles (mix bon/mauvais)", "details": "Débriefing : 3 erreurs les plus fréquentes."},
+            {"heure": "17h30", "type": "ENCADREMENT", "activite": "Synthèse coach — notes J1", "details": "Compléter fiches individuelles."}
+          ]
+        },
+        {
+          "jour": "J2",
+          "titre": "L'Accroche — Premier Pilier (TOP 1 & 3)",
+          "objectif": "Maîtriser les 3 types d'accroche et construire son accroche personnelle.",
+          "seances": [
+            {"heure": "9h00", "type": "DOUBLE ÉCOUTE", "activite": "Focus accroche & ouverture d'appel", "details": "Observer les 15 premières secondes."},
+            {"heure": "9h30", "type": "FORMATION", "activite": "Théorie : Pourquoi l'accroche est décisive", "details": "Les 3 types : curiosité / bénéfice / question."},
+            {"heure": "13h30", "type": "ATELIER", "activite": "Atelier Accroche #1 — 10 simulations de 30s", "details": "Scoring : Naturel / Impact / Émotion / Conformité."},
+            {"heure": "17h00", "type": "BILAN", "activite": "Auto-évaluation : 'Mon accroche idéale'", "details": "Débriefing individuel + plan d'amélioration immédiat."}
+          ]
+        },
+        {
+          "jour": "J3",
+          "titre": "La Découverte Client — Creuser avant de vendre (TOP 2)",
+          "objectif": "Maîtriser les 6 questions de découverte et la matrice besoin/budget/urgence.",
+          "seances": [
+            {"heure": "9h00", "type": "DOUBLE ÉCOUTE", "activite": "Écoute matinale — rotation groupe", "details": "Focus TOP 2 écoute active."},
+            {"heure": "10h00", "type": "ATELIER", "activite": "Atelier — 'Décrypter un appel réussi'", "details": "Écoute enregistrement anonymisé excellent."},
+            {"heure": "13h30", "type": "FORMATION", "activite": "Les 6 questions de découverte incontournables", "details": "Matrice besoin/budget/urgence."},
+            {"heure": "15h30", "type": "ATELIER", "activite": "Atelier découverte — 8 simulations, profils variés", "details": "Profils : jeune actif / famille / senior / déjà assuré mécontent."}
+          ]
+        },
+        {
+          "jour": "J4",
+          "titre": "Le Script & Forces Personnelles (TOP 3 & 4)",
+          "objectif": "Maîtriser le script complet et construire son script personnalisé.",
+          "seances": [
+            {"heure": "9h00", "type": "DOUBLE ÉCOUTE", "activite": "Feedback immédiat — méthode sandwich", "details": "1 point fort → 1 axe → 1 encouragement."},
+            {"heure": "13h30", "type": "FORMATION", "activite": "Le script complet de vente", "details": "Accroche → Découverte → Présentation → Prix → Garanties → Closing."},
+            {"heure": "14h30", "type": "ATELIER", "activite": "Simulation script complet × 3 (chronométré)", "details": "Coaching en temps réel."}
+          ]
+        },
+        {
+          "jour": "J5",
+          "titre": "Bilan Phase 1 — Test & Plan d'Action",
+          "objectif": "Valider les acquis de la semaine 1 et fixer les objectifs S2.",
+          "seances": [
+            {"heure": "10h00", "type": "ATELIER", "activite": "Auto-évaluation — grille guidée (1h)", "details": "'Ce que j'ai appris / Ce qui m'a surpris / Mon progrès principal.'"},
+            {"heure": "13h30", "type": "BILAN", "activite": "Test écrit : conformité + trame + mots clés", "details": "Correction en direct + mise en situation complète."},
+            {"heure": "15h30", "type": "BILAN INDIV.", "activite": "Bilans individuels — 15 min/conseiller", "details": "1 point fort + 1 axe prioritaire S2."},
+            {"heure": "17h00", "type": "ENCADREMENT", "activite": "Remontée coach → superviseur (30 min)", "details": "Synthèse : qui progresse / attention particulière."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "titre": "PHASE 2 — OBJECTIONS, GARANTIES & VENTE ADDITIONNELLE",
+      "semaine": "Semaine 2",
+      "jours": "J6 à J11",
+      "tops": ["TOP 4", "TOP 5", "TOP 6"],
+      "methodes": ["Méthode ARC", "Méthode SONCAS"],
+      "jours_detail": [
+        {"jour": "J6", "titre": "Lancement S2 — Méthode GROW + Reformulation Client"},
+        {"jour": "J7", "titre": "Posture & Confiance — Voix, Énergie, Para-verbal (TOP 3)"},
+        {"jour": "J8", "titre": "Situations Difficiles — Désamorcer un Client en Colère"},
+        {"jour": "J9", "titre": "Garanties & Vente Additionnelle (TOP 5 & 6)"},
+        {"jour": "J10", "titre": "Consolidation — Indicateurs & Performance"},
+        {"jour": "J11", "titre": "Bilan Phase 2 — Montée en Compétences"}
+      ]
+    },
+    {
+      "id": 3,
+      "titre": "PHASE 3 — MAÎTRISE DES COMPAGNIES & PRODUITS",
+      "semaine": "Semaine 3",
+      "jours": "J12 à J17",
+      "tops": ["TOP 5", "TOP 7"],
+      "compagnies": ["APIVIA", "APRIL", "NÉOLIANE", "ZENIOO", "ASAF/AFPS", "MÉANA", "FMA", "COVERITY", "WAZARI", "2M2C", "SMATIS"],
+      "jours_detail": [
+        {"jour": "J12", "titre": "Mi-Parcours & Auto-Évaluation — APIVIA + APRIL"},
+        {"jour": "J13", "titre": "NÉOLIANE + ZENIOO + ASAF/AFPS — Gestion Émotionnelle"},
+        {"jour": "J14", "titre": "MÉANA + FMA + COVERITY — Co-développement entre Pairs"},
+        {"jour": "J15", "titre": "WAZARI + 2M2C + SMATIS — Indicateurs & Performance"},
+        {"jour": "J16", "titre": "Anti-Résiliation & Assertivité (TOP 4 & 7)"},
+        {"jour": "J17", "titre": "Bilan Phase 3 — Maîtrise des Produits (score min 16/20)"}
+      ]
+    },
+    {
+      "id": 4,
+      "titre": "PHASE 4 — AUTONOMIE, PERFORMANCE & ANTI-RÉSILIATION",
+      "semaine": "Semaine 4",
+      "jours": "J18 à J22",
+      "tops": ["TOP 1","TOP 2","TOP 3","TOP 4","TOP 5","TOP 6","TOP 7"],
+      "jours_detail": [
+        {"jour": "J18", "titre": "Réflexes Autonomes — Parcours Expert TOPs"},
+        {"jour": "J19", "titre": "Feedback entre Pairs — Coach en Retrait Total"},
+        {"jour": "J20", "titre": "Avant-Derniers Ajustements — Challenge Expert du Jour"},
+        {"jour": "J21", "titre": "Simulation Finale & Certification Interne"},
+        {"jour": "J22", "titre": "Certification & Lancement Terrain"}
+      ]
+    }
+  ],
+  "tops": [
+    {"id": "TOP 1", "nom": "Accueil", "description": "Sourire téléphonique, présentation claire, ton chaleureux", "integration": "J1", "validation": "obligatoire dès J1"},
+    {"id": "TOP 2", "nom": "Écoute Active", "description": "Reformulation, questions ouvertes, empathie, silence actif", "integration": "J1–J3", "validation": "grille coaching"},
+    {"id": "TOP 3", "nom": "Maîtrise du Discours", "description": "Fluidité, articulation, absence de jargon, débit adapté", "integration": "J2–J4", "validation": "simulation voix"},
+    {"id": "TOP 4", "nom": "Gestion de l'Appel", "description": "Conduite pro, respect script, gestion du flux", "integration": "S1–S2", "validation": "méthode GROW"},
+    {"id": "TOP 5", "nom": "Valorisation de l'Offre", "description": "Argumentaire CAP/SONCAS, bénéfices, upsell, traitement objections", "integration": "S2–S3", "validation": "méthode ARC"},
+    {"id": "TOP 6", "nom": "Clôture de l'Appel", "description": "Résumé, satisfaction, remerciement, prise de congé professionnelle", "integration": "S2–S4", "validation": "closing solide"},
+    {"id": "TOP 7", "nom": "Conformité / Sécurité", "description": "RGPD, ORIAS, DDA, enregistrement, phrase légale, fiche besoin", "integration": "J1", "validation": "0 tolérance"}
+  ],
+  "compagnies": [
+    {"nom": "APIVIA", "cible": "Actifs 30–55 ans, familles", "avantages": "Optique & dentaire forts, réseau KALIXIA", "vigilance": "Tarifs élevés seniors"},
+    {"nom": "APRIL", "cible": "TNS / Indépendants", "avantages": "Marque forte, RAC0 inclus, app mobile", "vigilance": "Délais souscription"},
+    {"nom": "NÉOLIANE", "cible": "Seniors 60+, budgets serrés", "avantages": "Excellent rapport qualité/prix", "vigilance": "Image moins connue"},
+    {"nom": "ZENIOO", "cible": "Jeunes actifs 20–35 ans", "avantages": "Garanties évolutives, tarif compétitif", "vigilance": "Inadapté besoins immédiats"},
+    {"nom": "ASAF/AFPS", "cible": "40–65 ans, fonctionnaires", "avantages": "Stabilité, dentaire fort, bilan annuel offert", "vigilance": "Moins digital"},
+    {"nom": "MÉANA", "cible": "Familles, maternité", "avantages": "Maternité 100%, pédiatrie renforcée", "vigilance": "Senior moins développé"},
+    {"nom": "FMA", "cible": "Agriculteurs, MSA", "avantages": "AT/MP renforcé, fidélité, tarifs adaptés", "vigilance": "Cible restreinte"},
+    {"nom": "COVERITY", "cible": "Cadres, expatriés, voyageurs", "avantages": "Premium, international, chambre VIP", "vigilance": "Prix élevés"},
+    {"nom": "WAZARI", "cible": "18–30 ans, digital natives", "avantages": "100% digital, onboarding rapide, téléconsult.", "vigilance": "Options complexes limitées"},
+    {"nom": "2M2C", "cible": "TPE/PME, RH", "avantages": "Collective patronale, portabilité Evin", "vigilance": "Peu adapté particulier"},
+    {"nom": "SMATIS", "cible": "Enseignants, fonctionnaires EN", "avantages": "Notoriété forte, optique premium", "vigilance": "Réservé aux affiliés"}
+  ],
+  "grille_evaluation": {
+    "score_minimum": 100,
+    "score_maximum": 125,
+    "criteres": [
+      {"critere": "Conformité ORIAS / Phrase d'ouverture", "obligatoire": true, "max": 5},
+      {"critere": "Qualité de l'accroche (TOP 1+3)", "max": 10, "objectif": "8/10"},
+      {"critere": "Découverte client (TOP 2)", "max": 10, "objectif": "8/10"},
+      {"critere": "Maîtrise de la trame (TOP 4)", "max": 10, "objectif": "8/10"},
+      {"critere": "Traitement des objections (ARC)", "max": 10, "objectif": "8/10"},
+      {"critere": "Présentation garanties (TOP 5)", "max": 10, "objectif": "8/10"},
+      {"critere": "Vente additionnelle", "max": 10, "objectif": "7/10"},
+      {"critere": "Orientation compagnie", "max": 10, "objectif": "9/10"},
+      {"critere": "Closing (TOP 6)", "max": 10, "objectif": "8/10"},
+      {"critere": "Anti-résiliation", "max": 10, "objectif": "9/10"},
+      {"critere": "Posture & voix (TOP 2+3)", "max": 10, "objectif": "8/10"},
+      {"critere": "Autonomie / auto-correction", "max": 10, "objectif": "9/10"},
+      {"critere": "Application 7 TOPs", "max": 10, "objectif": "9/10"}
+    ]
+  }
+}

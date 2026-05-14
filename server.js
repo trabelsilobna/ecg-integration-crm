@@ -1269,6 +1269,24 @@ app.delete('/api/parcours-pmo/:id', requireAuth, async (req, res) => {
 });
 
 // ─── PLANNING COACH PMO ──────────────────────────────────────────────────────────────────────────────────────────
+// ─── PLANNING UNIFIÉ ECG PEREIRE ─────────────────────────────────────────────
+app.get('/api/planning-unifie', requireAuth, async (req, res) => {
+  const role = req.session.user.role;
+  // Recruteur n'a pas accès
+  if (role === 'recruteur') return res.status(403).json({ error: 'Accès refusé' });
+  try {
+    const filePath = path.join(__dirname, 'data', 'planning_unifie.json');
+    const planning = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    // Les conseillers voient le planning mais pas les notes confidentielles manager
+    if (role === 'collaborateur' || role === 'conseiller') {
+      planning.confidentiel = false;
+    }
+    res.json(planning);
+  } catch(e) {
+    res.status(500).json({ error: 'Erreur lecture planning', details: e.message });
+  }
+});
+
 app.get('/api/planning-coach-pmo', requireAuth, async (req, res) => {
   const role = req.session.user.role;
   const rolesAutorises = ['admin', 'pmo', 'rh', 'pdg', 'coach', 'formateur', 'manager', 'conseiller'];
