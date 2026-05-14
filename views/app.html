@@ -610,6 +610,9 @@
     <a class="nav-item" href="#" data-page="planning-coach-admin" id="navPlanningCoach" style="display:none" onclick="event.preventDefault();navigate('planning-coach-admin');loadPlanningCoachAdmin()">
       <span class="icon">🤝</span> Planning & Action Coach
     </a>
+    <a class="nav-item" href="#" data-page="planning-unifie" id="navPlanningUnifie" style="display:none" onclick="event.preventDefault();navigate('planning-unifie');loadPlanningUnifie()">
+      <span class="icon">📋</span> Planning Unifié 22J
+    </a>
     <div class="nav-section-title" style="margin-top:8px">Mon Espace</div>
     <a class="nav-item" href="#" data-page="profil" onclick="event.preventDefault();navigate('profil')">
       <span class="icon">👤</span> Mon Profil
@@ -1157,6 +1160,25 @@
       </div>
     </div>
 
+    <!-- PAGE PLANNING UNIFIÉ 22 JOURS -->
+    <div class="page" id="page-planning-unifie">
+      <div class="page-header flex-between" style="flex-wrap:wrap;gap:12px">
+        <div>
+          <h1 class="page-title">📋 Planning Unifié d'Intégration</h1>
+          <p style="color:#64748b;margin:4px 0 0;font-size:14px">Programme complet 22 Jours — ECG PEREIRE ASSURANCES</p>
+        </div>
+        <button onclick="telechargerPlanningPDF()" style="background:#1A3A6B;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px">
+          📄 Télécharger PDF
+        </button>
+      </div>
+      <div id="planningUnifieContent" style="margin-top:20px">
+        <div style="text-align:center;padding:60px;color:#94a3b8">
+          <div style="font-size:48px;margin-bottom:12px">⏳</div>
+          <div>Chargement du planning...</div>
+        </div>
+      </div>
+    </div>
+
     <!-- PAGE PLANNING COACH ADMIN -->
     <div class="page" id="page-planning-coach-admin">
       <div class="page-header flex-between" style="flex-wrap:wrap;gap:12px">
@@ -1434,6 +1456,9 @@ function updateSidebar() {
   const showCoach = ['admin', 'rh', 'pmo', 'pdg', 'coach', 'directeur_commercial'].includes(currentUser.role);
   document.getElementById('navCoachSection').style.display = showCoach ? 'block' : 'none';
   document.getElementById('navPlanningCoach').style.display = showCoach ? 'flex' : 'none';
+  // Planning Unifié visible pour coach, admin, manager, conseiller, rh, pdg, pmo — caché pour recruteur
+  const showPlanningUnifie = !['recruteur'].includes(currentUser.role);
+  document.getElementById('navPlanningUnifie').style.display = showPlanningUnifie ? 'flex' : 'none';
   // Afficher le lien Gestion Plateforme uniquement pour le PMO
   const showAdmin = currentUser.role === 'pmo';
   document.getElementById('navAdminSection').style.display = showAdmin ? 'block' : 'none';
@@ -2741,6 +2766,146 @@ function confirmerDecision() {
   // Désactiver le bouton après confirmation
   const btn = document.getElementById('btnConfirmerDecision');
   if (btn) { btn.style.opacity = '0.5'; btn.style.pointerEvents = 'none'; }
+}
+
+// ── PLANNING UNIFIÉ 22 JOURS ──
+async function loadPlanningUnifie() {
+  const container = document.getElementById('planningUnifieContent');
+  if (!container) return;
+  try {
+    const data = await fetch('/api/planning-unifie').then(r => r.json());
+    if (data.error) { container.innerHTML = `<div style="color:red;padding:20px">${data.error}</div>`; return; }
+
+    const couleurs = { 1: '#1A3A6B', 2: '#0f766e', 3: '#7c3aed', 4: '#dc2626' };
+    const bgCouleurs = { 1: '#eff6ff', 2: '#f0fdfa', 3: '#faf5ff', 4: '#fff1f2' };
+
+    let html = `
+      <div style="background:linear-gradient(135deg,#1A3A6B,#2563eb);color:#fff;border-radius:16px;padding:28px;margin-bottom:24px">
+        <div style="font-size:1.4rem;font-weight:800;margin-bottom:6px">${data.titre}</div>
+        <div style="opacity:0.85;font-size:14px">${data.programme} • ${data.societe}</div>
+        <div style="display:flex;gap:16px;margin-top:16px;flex-wrap:wrap">
+          <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:8px 16px;font-size:13px">📚 ${data.tops?.length || 7} TOPs</div>
+          <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:8px 16px;font-size:13px">🏢 ${data.compagnies?.length || 11} Compagnies</div>
+          <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:8px 16px;font-size:13px">📅 4 Phases / 22 Jours</div>
+        </div>
+      </div>`;
+
+    // Phases
+    data.phases?.forEach(phase => {
+      const c = couleurs[phase.id] || '#1A3A6B';
+      const bg = bgCouleurs[phase.id] || '#eff6ff';
+      html += `
+        <div style="border:2px solid ${c};border-radius:12px;margin-bottom:20px;overflow:hidden">
+          <div style="background:${c};color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+            <div style="font-weight:700;font-size:15px">${phase.titre}</div>
+            <div style="font-size:12px;opacity:0.9">${phase.jours} • ${phase.semaine}</div>
+          </div>
+          <div style="padding:16px;background:${bg}">`;
+
+      if (phase.tops) html += `<div style="margin-bottom:12px;font-size:12px;color:${c};font-weight:600">TOPs : ${phase.tops.join(' • ')}</div>`;
+
+      if (phase.jours_detail?.length) {
+        phase.jours_detail.forEach(j => {
+          html += `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px;margin-bottom:8px">
+            <div style="font-weight:700;font-size:13px;color:${c}">${j.jour} — ${j.titre}</div>`;
+          if (j.objectif) html += `<div style="font-size:12px;color:#64748b;margin-top:4px">🎯 ${j.objectif}</div>`;
+          if (j.seances?.length) {
+            html += `<div style="margin-top:10px;display:flex;flex-direction:column;gap:4px">`;
+            j.seances.forEach(s => {
+              const typeColors = { 'FORMATION': '#7c3aed', 'ATELIER': '#0f766e', 'DOUBLE ÉCOUTE': '#1A3A6B', 'BILAN': '#dc2626', 'PAUSE': '#94a3b8', 'ENCADREMENT': '#d97706', 'ÉCOUTE INDIV.': '#0891b2', 'MOTIVATION': '#16a34a', 'COHÉSION': '#db2777', 'BILAN INDIV.': '#dc2626' };
+              const tc = typeColors[s.type] || '#475569';
+              html += `<div style="display:flex;gap:8px;align-items:flex-start;padding:4px 0;border-bottom:1px solid #f1f5f9">
+                <span style="min-width:42px;font-size:11px;color:#94a3b8;font-weight:600">${s.heure}</span>
+                <span style="min-width:100px;font-size:10px;font-weight:700;color:${tc};background:${tc}20;padding:2px 6px;border-radius:4px">${s.type}</span>
+                <span style="font-size:12px;color:#374151">${s.activite}</span>
+              </div>`;
+            });
+            html += `</div>`;
+          }
+          html += `</div>`;
+        });
+      }
+      html += `</div></div>`;
+    });
+
+    // TOPs
+    html += `<div style="margin-bottom:20px"><h3 style="color:#1A3A6B;font-size:1rem;font-weight:700;margin-bottom:12px">🏆 Les 7 TOPs — Standards d'Excellence</h3><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">`;
+    data.tops?.forEach(t => {
+      html += `<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:14px">
+        <div style="font-weight:700;color:#1A3A6B;font-size:13px">${t.id} — ${t.nom}</div>
+        <div style="font-size:12px;color:#64748b;margin-top:4px">${t.description}</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:6px">Intégration : ${t.integration} • ${t.validation}</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+
+    // Compagnies
+    html += `<div><h3 style="color:#1A3A6B;font-size:1rem;font-weight:700;margin-bottom:12px">🏢 11 Compagnies Partenaires</h3><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px">`;
+    data.compagnies?.forEach(c => {
+      html += `<div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:12px">
+        <div style="font-weight:800;color:#1A3A6B;font-size:14px">${c.nom}</div>
+        <div style="font-size:11px;color:#64748b;margin-top:4px">👥 ${c.cible}</div>
+        <div style="font-size:11px;color:#16a34a;margin-top:4px">✅ ${c.avantages}</div>
+        <div style="font-size:11px;color:#dc2626;margin-top:2px">⚠️ ${c.vigilance}</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+
+    container.innerHTML = html;
+  } catch(e) {
+    container.innerHTML = `<div style="color:red;padding:20px">Erreur chargement planning : ${e.message}</div>`;
+  }
+}
+
+async function telechargerPlanningPDF() {
+  try {
+    const res = await fetch('/api/planning-unifie');
+    const data = await res.json();
+    // Ouvrir la page PDF dans un nouvel onglet
+    const w = window.open('', '_blank');
+    w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Planning Unifié ECG</title>
+    <style>
+      body{font-family:Arial,sans-serif;margin:20px;color:#222;font-size:12px}
+      h1{color:#1A3A6B;font-size:18px;border-bottom:3px solid #1A3A6B;padding-bottom:8px}
+      h2{color:#1A3A6B;font-size:14px;margin-top:20px;background:#eff6ff;padding:6px 10px;border-radius:4px}
+      h3{color:#374151;font-size:12px;margin-top:12px}
+      table{width:100%;border-collapse:collapse;margin-top:8px;font-size:11px}
+      th{background:#1A3A6B;color:#fff;padding:6px 8px;text-align:left}
+      td{border:1px solid #e2e8f0;padding:5px 8px;vertical-align:top}
+      tr:nth-child(even) td{background:#f8fafc}
+      .phase{border:2px solid #1A3A6B;border-radius:6px;margin-bottom:16px;overflow:hidden;page-break-inside:avoid}
+      .phase-header{background:#1A3A6B;color:#fff;padding:8px 12px;font-weight:700}
+      @media print{body{margin:10px}.phase{page-break-inside:avoid}}
+    </style></head><body>
+    <h1>📋 ${data.titre}</h1>
+    <p><strong>${data.programme}</strong> • ${data.societe} • <em>Confidentiel — Usage Interne</em></p>`);
+
+    data.phases?.forEach(p => {
+      w.document.write(`<div class="phase"><div class="phase-header">${p.titre} — ${p.jours}</div><div style="padding:10px">`);
+      p.jours_detail?.forEach(j => {
+        w.document.write(`<h3>${j.jour} — ${j.titre}</h3>`);
+        if (j.objectif) w.document.write(`<p>🎯 ${j.objectif}</p>`);
+        if (j.seances?.length) {
+          w.document.write(`<table><tr><th>Heure</th><th>Type</th><th>Activité</th><th>Détails</th></tr>`);
+          j.seances.forEach(s => w.document.write(`<tr><td>${s.heure}</td><td>${s.type}</td><td>${s.activite}</td><td>${s.details||''}</td></tr>`));
+          w.document.write(`</table>`);
+        }
+      });
+      w.document.write(`</div></div>`);
+    });
+
+    w.document.write(`<h2>🏆 Les 7 TOPs</h2><table><tr><th>TOP</th><th>Nom</th><th>Description</th><th>Intégration</th></tr>`);
+    data.tops?.forEach(t => w.document.write(`<tr><td>${t.id}</td><td>${t.nom}</td><td>${t.description}</td><td>${t.integration}</td></tr>`));
+    w.document.write(`</table>`);
+
+    w.document.write(`<h2>🏢 11 Compagnies Partenaires</h2><table><tr><th>Compagnie</th><th>Cible</th><th>Avantages</th><th>Vigilance</th></tr>`);
+    data.compagnies?.forEach(c => w.document.write(`<tr><td><strong>${c.nom}</strong></td><td>${c.cible}</td><td>${c.avantages}</td><td>${c.vigilance}</td></tr>`));
+    w.document.write(`</table></body></html>`);
+    w.document.close();
+    setTimeout(() => w.print(), 800);
+  } catch(e) {
+    alert('Erreur génération PDF : ' + e.message);
+  }
 }
 
 // ── PLANNING COACH ADMIN ──
