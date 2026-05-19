@@ -4,6 +4,8 @@ const bcrypt = require('bcryptjs');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 // Configuration multer pour l'upload de fichiers
 const storage = multer.diskStorage({
@@ -13,18 +15,61 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
+    const ext = path.extname(file.originalname).toLowerCase();
     const base = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9_\-]/g, '_');
     cb(null, `${Date.now()}_${base}${ext}`);
   }
 });
-const upload = multer({ storage, limits: { fileSize: 50 * 1024 * 1024 } }); // 50MB max
+
+// ── SÉCURITÉ — Types de fichiers autorisés uniquement ──
+const typesAutorises = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-powerpoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+  'text/plain', 'text/csv'
+];
+const fileFilter = (req, file, cb) => {
+  if (typesAutorises.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error(`Type de fichier non autorisé : ${file.mimetype}`), false);
+  }
+};
+const upload = multer({ storage, limits: { fileSize: 20 * 1024 * 1024 }, fileFilter }); // 20MB max
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Trust proxy (Manus HTTPS reverse proxy)
+// Trust proxy (Railway HTTPS reverse proxy)
 app.set('trust proxy', 1);
+
+// ── SÉCURITÉ — Headers HTTP ──
+app.use(helmet({
+  contentSecurityPolicy: false, // désactivé pour compatibilité app existante
+  crossOriginEmbedderPolicy: false
+}));
+
+// ── SÉCURITÉ — Rate limiting login (max 5 tentatives / 15 min par IP) ──
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { error: 'Trop de tentatives de connexion. Réessayez dans 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// ── SÉCURITÉ — Rate limiting global (max 200 requêtes / min par IP) ──
+const globalLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 200,
+  message: { error: 'Trop de requêtes. Réessayez dans une minute.' }
+});
+app.use('/api/', globalLimiter);
 
 // Middleware
 app.use(express.json());
@@ -33,7 +78,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Session
 app.use(session({
-  secret: 'ecg-integration-secret-2026',
+  secret: process.env.SESSION_SECRET || 'ecg-integration-secret-2026',
   resave: true,
   saveUninitialized: false,
   rolling: true,
@@ -84,7 +129,7 @@ app.get('/login', async (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'login.html'));
 });
 
-app.post('/api/login', async (req, res) => {
+app.post('/api/login', loginLimiter, async (req, res) => {
   const { login, password } = req.body;
   const users = await readDataA('users.json');
   const user = users.find(u => u.login === login || u.email === login);
