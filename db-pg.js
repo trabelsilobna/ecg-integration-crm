@@ -216,4 +216,4 @@ async function updateUserDB(userId, fields) {
   await query('UPDATE ecg_users SET data = $1, updated_at = NOW() WHERE id = $2', [JSON.stringify(updated), userId]);
 }
 
-module.exports = { init, readDataAsync, writeDataAsync, createUserDB, updateUserDB, isUsingDB: () => useDB };
+module.exports = { init, readDataAsync, writeDataAsync, createUserDB, updateUserDB, query, isUsingDB: () => useDB };
