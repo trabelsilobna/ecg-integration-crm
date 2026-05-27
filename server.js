@@ -390,6 +390,26 @@ app.put('/api/quiz/corriger/:id', requireAuth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// ─── SYNC FORCÉE JSON → PostgreSQL ───────────────────────────────────────────
+app.get('/api/sync-users-ecg2026', async (req, res) => {
+  try {
+    const db2 = require('./db-pg');
+    const users = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'users.json'), 'utf8'));
+    // Supprimer tous les users et réimporter
+    await db2.query('DELETE FROM ecg_users');
+    for (const u of users) {
+      await db2.query(
+        'INSERT INTO ecg_users (id, login, data) VALUES ($1, $2, $3) ON CONFLICT (login) DO UPDATE SET data = EXCLUDED.data, updated_at = NOW()',
+        [u.id, u.login || u.email, JSON.stringify(u)]
+      );
+    }
+    await db2.query(`SELECT setval('ecg_users_id_seq', GREATEST((SELECT MAX(id) FROM ecg_users), 1))`);
+    res.json({ success: true, message: `${users.length} utilisateurs synchronisés`, users: users.map(u => `${u.prenom} ${u.nom} (${u.login})`) });
+  } catch(e) {
+    res.json({ success: false, error: e.message });
+  }
+});
+
 // ─── NETTOYAGE TEMPORAIRE ─────────────────────────────────────────────────────
 app.get('/api/cleanup-matteo-ecg2026', async (req, res) => {
   try {
