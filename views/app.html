@@ -2896,16 +2896,54 @@ async function ouvrirSaisieKPI() {
         </div>
 
         <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:16px">
-          <div style="font-weight:700;color:#1A3A6B;margin-bottom:12px;font-size:13px">📞 Activité Commerciale</div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">
+          <div style="font-weight:700;color:#1A3A6B;margin-bottom:12px;font-size:13px">📨 Leads & Réceptions</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
             ${[
-              {id:'appels', label:'Appels', placeholder:'ex: 1500'},
+              {id:'aniRecu', label:'ANI reçu', placeholder:'ex: 43'},
+              {id:'haniRecu', label:'HANI reçu', placeholder:'ex: 8'},
+              {id:'totalRecu', label:'Total reçu', placeholder:'ex: 51'},
+              {id:'aniPrevu', label:'ANI prévu', placeholder:'ex: 0'},
+              {id:'haniPrevu', label:'HANI prévu', placeholder:'ex: 0'},
+              {id:'budgetPrevu', label:'Budget prévu (€)', placeholder:'ex: 0'},
+              {id:'budgetConsomme', label:'Budget consommé (€)', placeholder:'ex: 80.94'},
+            ].map(f => `<div>
+              <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:3px">${f.label}</label>
+              <input type="number" id="kpi_${f.id}" placeholder="${f.placeholder}" step="0.01" style="width:100%;padding:7px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:13px;box-sizing:border-box">
+            </div>`).join('')}
+          </div>
+        </div>
+
+        <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:16px">
+          <div style="font-weight:700;color:#1A3A6B;margin-bottom:12px;font-size:13px">📞 Activité Commerciale</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
+            ${[
+              {id:'appels', label:'Nb appels', placeholder:'ex: 2781'},
+              {id:'moyenneAppelsParJour', label:'Moy. appels/jour', placeholder:'ex: 253'},
+              {id:'devisEnvoyes', label:'Devis envoyés', placeholder:'ex: 25'},
+              {id:'contratsValidesFicheFraiche', label:'Contrats fiche fraîche', placeholder:'ex: 1'},
               {id:'contratsValides', label:'Contrats validés', placeholder:'ex: 12'},
               {id:'contratsMD', label:'Contrats MD', placeholder:'ex: 3'},
-              {id:'cac', label:'CAC (€)', placeholder:'ex: 2500'},
-              {id:'ca', label:'CA (€)', placeholder:'ex: 15000'},
-              {id:'tauxClosingFicheFraiche', label:'Taux closing (%)', placeholder:'ex: 25'},
+              {id:'avis', label:'Avis', placeholder:'ex: 0'},
+              {id:'tauxClosingFicheFraiche', label:'Taux closing fiche fraîche (%)', placeholder:'ex: 25'},
               {id:'tauxCommunication', label:'Taux communication (%)', placeholder:'ex: 75'},
+            ].map(f => `<div>
+              <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:3px">${f.label}</label>
+              <input type="number" id="kpi_${f.id}" placeholder="${f.placeholder}" step="0.01" style="width:100%;padding:7px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:13px;box-sizing:border-box">
+            </div>`).join('')}
+          </div>
+        </div>
+
+        <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:16px">
+          <div style="font-weight:700;color:#1A3A6B;margin-bottom:12px;font-size:13px">💰 Financier & CAC</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
+            ${[
+              {id:'cac', label:'CAC réalisé (€)', placeholder:'ex: 2500'},
+              {id:'cacMatiereFraiche', label:'CAC matière fraîche (€)', placeholder:'ex: 158'},
+              {id:'cacRejete', label:'CAC rejeté (€)', placeholder:'ex: 174'},
+              {id:'ca', label:'CA (€)', placeholder:'ex: 15000'},
+              {id:'delta', label:'Delta CA (€)', placeholder:'ex: -2602'},
+              {id:'tauxAtteinte', label:'Taux atteinte obj. (%)', placeholder:'ex: 85'},
+              {id:'margeSurCC', label:'Marge sur CC (€)', placeholder:'ex: 633'},
             ].map(f => `<div>
               <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:3px">${f.label}</label>
               <input type="number" id="kpi_${f.id}" placeholder="${f.placeholder}" step="0.01" style="width:100%;padding:7px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:13px;box-sizing:border-box">
@@ -2923,11 +2961,15 @@ async function ouvrirSaisieKPI() {
 
         <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:16px">
           <div style="font-weight:700;color:#1A3A6B;margin-bottom:12px;font-size:13px">🎯 Objectifs</div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
             ${[
+              {id:'objectifAppels', label:'Obj. appels', placeholder:'ex: 3000'},
               {id:'objectifContratsValides', label:'Obj. contrats', placeholder:'ex: 15'},
+              {id:'objectifContratsMD', label:'Obj. contrats MD', placeholder:'ex: 5'},
+              {id:'objectifAvis', label:'Obj. avis', placeholder:'ex: 3'},
               {id:'objectifCac', label:'Obj. CAC (€)', placeholder:'ex: 3000'},
               {id:'objectifCa', label:'Obj. CA (€)', placeholder:'ex: 20000'},
+              {id:'objectifTauxAtteinte', label:'Obj. taux atteinte (%)', placeholder:'ex: 100'},
               {id:'objectifTauxClosing', label:'Obj. taux closing (%)', placeholder:'ex: 25'},
               {id:'objectifTauxCommunication', label:'Obj. taux comm. (%)', placeholder:'ex: 75'},
             ].map(f => `<div>
@@ -2958,7 +3000,7 @@ async function chargerKPIConseiller() {
     const data = await fetch(`/api/kpi-commerciaux/${userId}`).then(r => r.json());
     const kpiMois = data.find(k => k.mois === mois);
     if (kpiMois) {
-      const fields = ['appels','contratsValides','contratsMD','cac','ca','tauxClosingFicheFraiche','tauxCommunication','joursTravailles','absences','retards','objectifJoursTravailles','objectifContratsValides','objectifCac','objectifCa','objectifTauxClosing','objectifTauxCommunication'];
+      const fields = ['aniRecu','haniRecu','totalRecu','aniPrevu','haniPrevu','budgetPrevu','budgetConsomme','appels','moyenneAppelsParJour','devisEnvoyes','contratsValidesFicheFraiche','contratsValides','contratsMD','avis','tauxClosingFicheFraiche','tauxCommunication','cac','cacMatiereFraiche','cacRejete','ca','delta','tauxAtteinte','margeSurCC','objectifAppels','objectifContratsValides','objectifContratsMD','objectifAvis','objectifCac','objectifCa','objectifTauxAtteinte','objectifTauxClosing','objectifTauxCommunication'];
       fields.forEach(f => {
         const el = document.getElementById('kpi_' + f);
         if (el && kpiMois[f] !== undefined) el.value = kpiMois[f];
@@ -2976,7 +3018,7 @@ async function sauvegarderKPI() {
   if (!userId) { alert('⚠️ Veuillez choisir un conseiller'); return; }
 
   const periodeMap = { 'M0':'Février 2026','MI':'Intégration','M1':'Mars 2026','M2':'Avril 2026','M3':'Mai 2026','M4':'Juin 2026','M5':'Juillet 2026' };
-  const fields = ['appels','contratsValides','contratsMD','cac','ca','tauxClosingFicheFraiche','tauxCommunication','joursTravailles','absences','retards','objectifJoursTravailles','objectifContratsValides','objectifCac','objectifCa','objectifTauxClosing','objectifTauxCommunication'];
+  const fields = ['aniRecu','haniRecu','totalRecu','aniPrevu','haniPrevu','budgetPrevu','budgetConsomme','appels','moyenneAppelsParJour','devisEnvoyes','contratsValidesFicheFraiche','contratsValides','contratsMD','avis','tauxClosingFicheFraiche','tauxCommunication','cac','cacMatiereFraiche','cacRejete','ca','delta','tauxAtteinte','margeSurCC','objectifAppels','objectifContratsValides','objectifContratsMD','objectifAvis','objectifCac','objectifCa','objectifTauxAtteinte','objectifTauxClosing','objectifTauxCommunication'];
   const kpiData = { mois, periode: periodeMap[mois] || mois };
   fields.forEach(f => {
     const el = document.getElementById('kpi_' + f);
