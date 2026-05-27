@@ -225,6 +225,7 @@ app.get('/api/collaborateurs', requireAuth, async (req, res) => {
 
   const data = allUsers.map(u => ({
     id: u.id, nom: u.nom, prenom: u.prenom, email: u.email,
+    login: u.login || u.email,
     poste: u.poste, site: u.site, departement: u.departement,
     dateArrivee: u.dateArrivee, progression: u.progression,
     statut: u.statut, role: u.role,
