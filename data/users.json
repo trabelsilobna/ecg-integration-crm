@@ -152,10 +152,10 @@
   },
   {
     "id": 12,
-    "nom": "Kamelia",
+    "nom": "Bouchir",
     "prenom": "Kamelia",
-    "login": "kamelia",
-    "email": "kamelia@ecg-group.com",
+    "login": "kamelia.bouchir",
+    "email": "kamelia.bouchir@ecg-group.com",
     "password": "$2b$10$5M2LUjUksaDw0ItNdtFMJ.SsCeVRdlFjyMdCaypdtRwA8j4fM8tqG",
     "role": "collaborateur",
     "poste": "Conseiller Commercial",
