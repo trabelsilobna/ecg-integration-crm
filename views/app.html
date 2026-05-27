@@ -2856,18 +2856,11 @@ async function ouvrirSaisieKPI() {
           </div>
         </div>
 
-        <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:16px">
-          <div style="font-weight:700;color:#1A3A6B;margin-bottom:12px;font-size:13px">📅 Présence & Assiduité</div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">
-            ${[
-              {id:'joursTravailles', label:'Jours travaillés', placeholder:'ex: 20'},
-              {id:'absences', label:'Absences', placeholder:'ex: 0'},
-              {id:'retards', label:'Retards', placeholder:'ex: 1'},
-              {id:'objectifJoursTravailles', label:'Objectif jours', placeholder:'ex: 22'},
-            ].map(f => `<div>
-              <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:3px">${f.label}</label>
-              <input type="number" id="kpi_${f.id}" placeholder="${f.placeholder}" style="width:100%;padding:7px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:13px;box-sizing:border-box">
-            </div>`).join('')}
+        <div style="background:#e0f2fe;border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+          <span style="font-size:20px">📅</span>
+          <div>
+            <div style="font-weight:600;color:#0369a1;font-size:13px">Présence & Assiduité</div>
+            <div style="font-size:12px;color:#0284c7;margin-top:2px">Calculée automatiquement depuis le pointage quotidien des conseillers</div>
           </div>
         </div>
 
