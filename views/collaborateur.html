@@ -878,6 +878,8 @@
       .kpi-col-m0 { background: #fafbff; }
       .kpi-col-mi { background: #f0f9ff; }
       .kpi-col-m1 { background: #f0fdf4; }
+      .kpi-col-m2 { background: #faf5ff; }
+      .kpi-col-m3 { background: #fff1f2; }
 
       .kpi-bar-wrap { display: flex; align-items: center; gap: 8px; }
       .kpi-mini-bar { height: 6px; border-radius: 3px; background: #e2e8f0; width: 60px; overflow: hidden; flex-shrink: 0; }
@@ -951,7 +953,7 @@
       <div style="background:#fff;border-radius:20px;border:1.5px solid #e8f0fe;padding:24px;margin-bottom:20px">
         <div class="kpi-section-title">
           <div class="bar"></div>
-          <h3>📊 Tableau de suivi — M0 à M1</h3>
+          <h3>📊 Tableau de suivi — M0 à M3</h3>
         </div>
         <div class="filter-tabs" style="margin-bottom:16px">
           <button class="filter-tab active" onclick="filterKpiCat('all',this)">Tout</button>
@@ -959,16 +961,19 @@
           <button class="filter-tab" onclick="filterKpiCat('commercial',this)">📄 Commercial</button>
           <button class="filter-tab" onclick="filterKpiCat('financier',this)">💰 Financier</button>
           <button class="filter-tab" onclick="filterKpiCat('presence',this)">📅 Présence</button>
+          <button class="filter-tab" onclick="filterKpiCat('activite',this)">📨 Leads</button>
         </div>
         <div class="table-wrap">
           <table class="kpi-table-premium" id="kpiHistoriqueTable">
             <thead>
               <tr style="background:#f8faff">
                 <th style="color:#0d2b5e;min-width:180px">Indicateur</th>
-                <th style="color:#475569;text-align:center" class="kpi-col-m0">M0 — Début</th>
-                <th style="color:#0369a1;text-align:center" class="kpi-col-mi">MI — Mi-parcours</th>
-                <th style="color:#16a34a;text-align:center" class="kpi-col-m1">M1 — En cours</th>
-                <th style="color:#7c3aed;text-align:center">Tendance</th>
+                <th style="color:#475569;text-align:center" class="kpi-col-m0">M0</th>
+                <th style="color:#0369a1;text-align:center" class="kpi-col-mi">MI</th>
+                <th style="color:#16a34a;text-align:center" class="kpi-col-m1">M1</th>
+                <th style="color:#7c3aed;text-align:center" class="kpi-col-m2">M2</th>
+                <th style="color:#dc2626;text-align:center" class="kpi-col-m3">M3</th>
+                <th style="color:#f59e0b;text-align:center">Tendance</th>
               </tr>
             </thead>
             <tbody id="kpiHistoriqueBody"></tbody>
@@ -1513,6 +1518,13 @@ function renderKpiPage() {
 
     { cat:'presence',   label: '⏰ Absences',               key: 'absences',               objKey: null,                           fmt: v=>v,                                           inv: true  },
     { cat:'presence',   label: '⚠️ Retards',                key: 'retards',                objKey: null,                           fmt: v=>v,                                           inv: true  },
+    { cat:'activite',   label: '📨 ANI reçu',               key: 'aniRecu',                objKey: null,                           fmt: v=>v,                                           inv: false },
+    { cat:'activite',   label: '📨 HANI reçu',              key: 'haniRecu',               objKey: null,                           fmt: v=>v,                                           inv: false },
+    { cat:'activite',   label: '📦 Total reçu',             key: 'totalRecu',              objKey: null,                           fmt: v=>v,                                           inv: false },
+    { cat:'commercial', label: '⭐ Avis',                   key: 'avis',                   objKey: 'objectifAvis',                 fmt: v=>v,                                           inv: false },
+    { cat:'financier',  label: '🏷️ CAC mat. fraîche',      key: 'cacMatiereFraiche',       objKey: null,                           fmt: v=>v?.toLocaleString('fr-FR')+'€',              inv: true  },
+    { cat:'financier',  label: '🚫 CAC rejeté',             key: 'cacRejete',              objKey: null,                           fmt: v=>v?.toLocaleString('fr-FR')+'€',              inv: true  },
+    { cat:'financier',  label: '⚖️ Marge sur CC',           key: 'margeSurCC',             objKey: null,                           fmt: v=>v?.toLocaleString('fr-FR')+'€',              inv: false },
   ];
 
   // Ordonner les colonnes selon M0, MI, M1
@@ -1530,7 +1542,7 @@ function renderKpiPage() {
       else if (['absences','retards','cacRejete'].includes(ind.key)) color = val === 0 ? '#16a34a' : val <= 1 ? '#d97706' : '#dc2626';
       else if (pct !== null) color = ind.inv ? (val <= obj ? '#16a34a' : '#dc2626') : (pct >= 100 ? '#16a34a' : pct >= 80 ? '#d97706' : '#dc2626');
       else color = 'inherit';
-      const bgClass = ci === 0 ? 'kpi-col-m0' : ci === 1 ? 'kpi-col-mi' : 'kpi-col-m1';
+      const bgClass = ci === 0 ? 'kpi-col-m0' : ci === 1 ? 'kpi-col-mi' : ci === 2 ? 'kpi-col-m1' : ci === 3 ? 'kpi-col-m2' : 'kpi-col-m3';
       const barColor = pct !== null ? (ind.inv ? (val <= obj ? '#22c55e' : '#ef4444') : (pct >= 100 ? '#22c55e' : pct >= 80 ? '#f59e0b' : '#3b82f6')) : null;
       const barWidth = pct !== null ? Math.min(pct, 100) : 0;
       const barHtml = pct !== null ? `<div class="kpi-bar-wrap" style="margin-top:5px"><div class="kpi-mini-bar"><div class="kpi-mini-bar-fill" style="width:${barWidth}%;background:${barColor}"></div></div><span style="font-size:10px;color:${barColor};font-weight:700">${pct}%</span></div>` : '';
@@ -1549,7 +1561,7 @@ function renderKpiPage() {
 
   // — ANALYSE DE PROGRESSION M0 → M1 —
   const m0data = orderedData.find(r => r.mois === 'M0');
-  const m3data = orderedData.find(r => r.mois === 'M1') || orderedData[orderedData.length-1];
+  const m3data = orderedData.find(r => r.mois === 'M3') || orderedData.find(r => r.mois === 'M2') || orderedData.find(r => r.mois === 'M1') || orderedData[orderedData.length-1];
   const analyses = [
     { label: 'Appels',               m1: m0data?.appels,             m3: m3data?.appels,             obj: m3data?.objectifAppels,            unit: '',    inv: false },
 
