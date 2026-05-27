@@ -1688,8 +1688,9 @@ function renderCollabs(collabs) {
         </div>
       </td>
       <td>${statusBadge(c.statut)}</td>
-      <td>
+      <td style="display:flex;gap:6px;align-items:center">
         <button class="btn btn-secondary" style="font-size:11px;padding:4px 10px" onclick="viewParcours(${c.id})">Parcours</button>
+        <button onclick="supprimerUtilisateur(${c.id}, '${c.prenom} ${c.nom}')" style="background:#fee2e2;color:#dc2626;border:none;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">🗑️</button>
       </td>
     </tr>
   `).join('');
@@ -3600,8 +3601,12 @@ async function supprimerUtilisateur(id, nom) {
     const res = await fetch('/api/collaborateurs/' + id, { method: 'DELETE' });
     const data = await res.json();
     if (data.success) {
-      const c = document.getElementById('adminPmoContent');
-      await renderAdminUtilisateurs(c);
+      // Recharger la liste selon la page active
+      const adminContent = document.getElementById('adminPmoContent');
+      if (adminContent && document.getElementById('page-admin-pmo').classList.contains('active')) {
+        await renderAdminUtilisateurs(adminContent);
+      }
+      await loadCollaborateurs();
       alert(`✅ Compte de "${nom}" supprimé avec succès.`);
     } else {
       alert('❌ ' + (data.error || 'Erreur lors de la suppression'));
