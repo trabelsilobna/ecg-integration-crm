@@ -522,6 +522,25 @@ app.get('/api/messages/contacts', requireAuth, async (req, res) => {
   res.json(contacts);
 });
 
+// ─── DEBUG USERS ──────────────────────────────────────────────────────────────
+app.get('/api/debug-users-ecg2026', async (req, res) => {
+  try {
+    const db2 = require('./db-pg');
+    const r = await db2.query('SELECT id, login, data FROM ecg_users LIMIT 5');
+    const sample = r.rows.map(row => ({
+      id: row.id,
+      login: row.login,
+      data_type: typeof row.data,
+      data_keys: row.data ? Object.keys(row.data) : [],
+      role: row.data?.role,
+      data_raw: JSON.stringify(row.data).substring(0, 100)
+    }));
+    res.json({ count: r.rows.length, sample });
+  } catch(e) {
+    res.json({ error: e.message });
+  }
+});
+
 // ─── SYNC FORCÉE JSON → PostgreSQL ───────────────────────────────────────────
 app.get('/api/sync-users-ecg2026', async (req, res) => {
   try {
