@@ -122,8 +122,12 @@ async function readDataAsync(file) {
   }
 
   if (file === 'users.json') {
-    const r = await query('SELECT data FROM ecg_users ORDER BY id');
-    return r.rows.map(row => row.data);
+    const r = await query('SELECT id, login, data FROM ecg_users ORDER BY id');
+    return r.rows.map(row => ({
+      ...row.data,
+      id: row.data.id || row.id,
+      login: row.data.login || row.login || row.data.email
+    }));
   }
 
   const r = await query('SELECT value FROM ecg_kv WHERE key = $1', [file]);
