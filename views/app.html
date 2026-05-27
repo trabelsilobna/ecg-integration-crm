@@ -3571,7 +3571,7 @@ async function renderAdminUtilisateurs(c) {
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Nom</th><th>Login</th><th>Email</th><th>Rôle</th><th>Site</th><th>Statut</th></tr></thead>
+          <thead><tr><th>Nom</th><th>Login</th><th>Email</th><th>Rôle</th><th>Site</th><th>Statut</th><th>Actions</th></tr></thead>
           <tbody>
             ${users.map(u => `<tr>
               <td style="font-weight:600">${u.prenom} ${u.nom}</td>
@@ -3580,12 +3580,35 @@ async function renderAdminUtilisateurs(c) {
               <td><span style="background:${roleColors[u.role]||'#f1f5f9'};color:#1a3a6b;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">${roleLabels[u.role]||u.role}</span></td>
               <td style="font-size:12px">${u.site || '—'}</td>
               <td><span style="background:${u.statut==='en_cours'?'#dbeafe':u.statut==='integre'?'#dcfce7':'#f1f5f9'};color:${u.statut==='en_cours'?'#1d4ed8':u.statut==='integre'?'#16a34a':'#475569'};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">${u.statut||'Actif'}</span></td>
+              <td>
+                <button onclick="supprimerUtilisateur(${u.id}, '${u.prenom} ${u.nom}')" 
+                  style="background:#fee2e2;color:#dc2626;border:none;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">
+                  🗑️ Supprimer
+                </button>
+              </td>
             </tr>`).join('')}
           </tbody>
         </table>
       </div>
     </div>
   `;
+}
+
+async function supprimerUtilisateur(id, nom) {
+  if (!confirm(`⚠️ Supprimer le compte de "${nom}" ?\n\nCette action est irréversible.`)) return;
+  try {
+    const res = await fetch('/api/collaborateurs/' + id, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.success) {
+      const c = document.getElementById('adminPmoContent');
+      await renderAdminUtilisateurs(c);
+      alert(`✅ Compte de "${nom}" supprimé avec succès.`);
+    } else {
+      alert('❌ ' + (data.error || 'Erreur lors de la suppression'));
+    }
+  } catch(e) {
+    alert('❌ Erreur réseau : ' + e.message);
+  }
 }
 
 async function renderAdminParcours(c) {

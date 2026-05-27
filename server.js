@@ -275,6 +275,24 @@ app.post('/api/collaborateurs', requireAdmin, async (req, res) => {
   res.json({ success: true, id: newUser.id, login: loginFinal, message: `Compte créé avec succès` });
 });
 
+app.delete('/api/collaborateurs/:id', requireAdmin, async (req, res) => {
+  const id = parseInt(req.params.id);
+  const users = await readDataA('users.json');
+  const user = users.find(u => u.id === id);
+  if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+  // Empêcher la suppression de son propre compte
+  if (req.session.user.id === id) return res.status(400).json({ error: 'Vous ne pouvez pas supprimer votre propre compte' });
+  // Empêcher la suppression du dernier admin
+  if (user.role === 'admin') {
+    const admins = users.filter(u => u.role === 'admin');
+    if (admins.length <= 1) return res.status(400).json({ error: 'Impossible de supprimer le dernier administrateur' });
+  }
+  const newUsers = users.filter(u => u.id !== id);
+  await writeDataA('users.json', newUsers);
+  console.log(`🗑️ Compte supprimé : ${user.login} (${user.role}) par ${req.session.user.login}`);
+  res.json({ success: true, message: `Compte de ${user.prenom} ${user.nom} supprimé` });
+});
+
 // ─── API PARCOURS ─────────────────────────────────────────────────────────────
 
 app.get('/api/parcours', requireAuth, async (req, res) => {
