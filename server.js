@@ -500,6 +500,8 @@ app.get('/api/messages/unread/count', requireAuth, async (req, res) => {
 app.get('/api/messages/contacts', requireAuth, async (req, res) => {
   const user = req.session.user;
   const users = await readDataA('users.json');
+  console.log(`contacts debug - user.role: ${user.role}, user.id: ${user.id}, total users: ${users.length}`);
+  console.log('sample user:', JSON.stringify(users[0]));
   const roleMap = {
     collaborateur: ['coach', 'formateur', 'recruteur', 'rh', 'manager', 'admin', 'pmo', 'pdg'],
     coach: ['collaborateur', 'manager', 'rh', 'pmo', 'admin', 'pdg', 'directeur_commercial'],
@@ -516,6 +518,7 @@ app.get('/api/messages/contacts', requireAuth, async (req, res) => {
   const contacts = users
     .filter(u => u.id !== user.id && u.id !== undefined && allowed.includes(u.role))
     .map(u => ({ id: u.id, nom: `${u.prenom} ${u.nom}`, role: u.role, site: u.site || '' }));
+  console.log(`contacts found: ${contacts.length}`);
   res.json(contacts);
 });
 
