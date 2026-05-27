@@ -157,9 +157,9 @@
     "login": "kamelia.bouchair",
     "email": "kamelia.bouchair@ecg-group.com",
     "password": "$2b$10$5M2LUjUksaDw0ItNdtFMJ.SsCeVRdlFjyMdCaypdtRwA8j4fM8tqG",
-    "role": "collaborateur",
-    "poste": "Conseiller Commercial",
-    "site": "Paris",
+    "role": "recruteur",
+    "poste": "Recruteur",
+    "site": "Alger",
     "departement": "Commercial",
     "progression": 0,
     "statut": "en_cours"
@@ -177,21 +177,5 @@
     "departement": "Commercial",
     "progression": 0,
     "statut": "en_cours"
-  },
-  {
-    "id": 14,
-    "nom": "Bouchair",
-    "prenom": "Kamelia",
-    "email": "kamelia.bouchair@ecg-group.com",
-    "login": "kamelia.bouchair",
-    "password": "$2b$12$86oGaPU6/HcCEMqEBg4DvuV.xT8/x448QWDNiaIQNs6S3LDW9Y6M2",
-    "role": "recruteur",
-    "poste": "Recruteur",
-    "site": "Alger",
-    "departement": "",
-    "dateArrivee": "",
-    "progression": 0,
-    "statut": "actif",
-    "dateCreation": "27/05/2026"
   }
 ]
