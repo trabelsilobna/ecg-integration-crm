@@ -764,7 +764,7 @@ function getChatbotRegle(msg, prenom) {
 
 app.get('/api/kpi-commerciaux/:userId', requireAuth, async (req, res) => {
   const userId = parseInt(req.params.userId);
-  if (req.session.user.id !== userId && !['admin','rh','pmo','pdg'].includes(req.session.user.role)) {
+  if (req.session.user.id !== userId && !['admin','rh','pmo','pdg','coach','manager','directeur_commercial','formateur'].includes(req.session.user.role)) {
     return res.status(403).json({ error: 'Accès refusé' });
   }
   const data = await readDataA('kpi_commerciaux.json');
