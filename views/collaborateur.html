@@ -1423,10 +1423,10 @@ function renderKpiPage() {
   document.getElementById('kpiTimeline').innerHTML = timelineHtml;
 
   // — JAUGES dernière période —
-  const pctAppels = Math.min(Math.round((last.appels / last.objectifAppels) * 100), 150);
-  const pctAtteinte = Math.min(last.tauxAtteinte, 150);
-  const pctCA = Math.min(Math.round((last.ca / last.objectifCa) * 100), 150);
-  const pctTauxComm = Math.min(Math.round((last.tauxCommunication / last.objectifTauxCommunication) * 100), 150);
+  const pctAppels = last.objectifAppels > 0 ? Math.min(Math.round((last.appels / last.objectifAppels) * 100), 150) : 0;
+  const pctAtteinte = Math.min(last.tauxAtteinte || 0, 150);
+  const pctCA = last.objectifCa > 0 ? Math.min(Math.round(((last.ca || 0) / last.objectifCa) * 100), 150) : 0;
+  const pctTauxComm = last.objectifTauxCommunication > 0 ? Math.min(Math.round(((last.tauxCommunication || 0) / last.objectifTauxCommunication) * 100), 150) : 0;
   document.getElementById('kpiGaugesTitle').textContent = `🎯 Indicateurs clés — ${last.periode} (${last.mois})`;
   const gaugeColor = (pct) => pct >= 100 ? '#22c55e' : pct >= 80 ? '#f59e0b' : '#3b82f6';
   const gaugeGrad = (pct) => { const c = gaugeColor(pct); return `conic-gradient(${c} ${Math.min(pct,100)*3.6}deg, #e2e8f0 0)`; };
@@ -1441,8 +1441,8 @@ function renderKpiPage() {
           </div>
         </div>
         <div class="gauge-label" style="font-size:13px;font-weight:700;color:#0d2b5e;margin-top:10px">📞 Appels</div>
-        <div style="font-size:11px;color:#64748b;margin-top:4px">${last.appels.toLocaleString('fr-FR')} / ${last.objectifAppels.toLocaleString('fr-FR')}</div>
-        <div style="font-size:11px;color:#94a3b8">moy. ${last.moyenneAppelsParJour}/j</div>
+        <div style="font-size:11px;color:#64748b;margin-top:4px">${(last.appels||0).toLocaleString('fr-FR')} / ${(last.objectifAppels||0).toLocaleString('fr-FR')}</div>
+        <div style="font-size:11px;color:#94a3b8">moy. ${last.moyenneAppelsParJour||0}/j</div>
       </div>
     </div>
     <div class="gauge-card-premium">
