@@ -814,6 +814,33 @@
         </div>
       </div>
     </div>
+      </div><!-- fin kpiDashboardContent -->
+
+      <!-- Tableau KPI par Conseiller -->
+      <div id="kpiTableauContent" style="display:none">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+            <div class="card-title" style="margin:0">📋 KPI Commerciaux — Tous les Conseillers</div>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <select id="kpiTableauPeriode" onchange="chargerTableauKPI()" style="padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px">
+                <option value="M0">M0 — Février 2026</option>
+                <option value="MI">MI — Intégration</option>
+                <option value="M1" selected>M1 — Mars 2026</option>
+                <option value="M2">M2 — Avril 2026</option>
+                <option value="M3">M3 — Mai 2026</option>
+                <option value="M4">M4 — Juin 2026</option>
+                <option value="M5">M5 — Juillet 2026</option>
+              </select>
+              <button onclick="ouvrirSaisieKPI()" style="background:#1A3A6B;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">✏️ Saisir KPI</button>
+            </div>
+          </div>
+          <div id="kpiTableauData">
+            <div style="text-align:center;padding:40px;color:#94a3b8">🔄 Chargement...</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
 
     <!-- ── PAGE RESSOURCES ── -->
     <div class="page" id="page-ressources">
@@ -840,9 +867,26 @@
           <h2>📊 Tableau de bord RH</h2>
           <p>Absentéisme, turnover, analyse par phase et alertes IA</p>
         </div>
-        <button id="btnSaisieKPI" onclick="ouvrirSaisieKPI()" style="background:#1A3A6B;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;display:none">
-          ✏️ Saisir KPI manuellement
-        </button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button id="btnSaisieKPI" onclick="ouvrirSaisieKPI()" style="background:#1A3A6B;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;display:none">
+            ✏️ Saisir KPI
+          </button>
+          <button id="btnVoirKPIConseiller" onclick="switchKpiTab('tableau')" style="background:#0f766e;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;display:none">
+            📋 KPI Conseillers
+          </button>
+        </div>
+      </div>
+
+      <!-- Onglets KPI -->
+      <div id="kpiTabBtns" style="display:none;margin-bottom:20px">
+        <div class="filter-tabs">
+          <button class="filter-tab active" onclick="switchKpiTab('dashboard')">📊 Dashboard RH</button>
+          <button class="filter-tab" onclick="switchKpiTab('tableau')">📋 KPI par Conseiller</button>
+        </div>
+      </div>
+
+      <!-- Contenu Dashboard RH -->
+      <div id="kpiDashboardContent">
       </div>
 
       <!-- Stat cards globales -->
@@ -1469,6 +1513,13 @@ function updateSidebar() {
   const btnKPI = document.getElementById('btnSaisieKPI');
   if (btnKPI && ['admin', 'coach', 'manager', 'pmo', 'rh', 'pdg'].includes(currentUser.role)) {
     btnKPI.style.display = 'block';
+  }
+  // Onglets KPI et bouton conseillers pour admin et coach
+  if (['admin', 'coach', 'manager', 'pmo', 'rh', 'pdg'].includes(currentUser.role)) {
+    const tabBtns = document.getElementById('kpiTabBtns');
+    const btnVoir = document.getElementById('btnVoirKPIConseiller');
+    if (tabBtns) tabBtns.style.display = 'block';
+    if (btnVoir) btnVoir.style.display = 'block';
   }
   // Afficher le lien Gestion Plateforme uniquement pour le PMO
   const showAdmin = currentUser.role === 'pmo';
@@ -2951,6 +3002,107 @@ async function sauvegarderKPI() {
   } catch(e) {
     alert('❌ Erreur : ' + e.message);
   }
+}
+
+// ── TABLEAU KPI CONSEILLERS ──────────────────────────────────────────────────
+function switchKpiTab(tab) {
+  const dashboard = document.getElementById('kpiDashboardContent');
+  const tableau = document.getElementById('kpiTableauContent');
+  const btns = document.querySelectorAll('#kpiTabBtns .filter-tab');
+  if (tab === 'dashboard') {
+    dashboard.style.display = 'block';
+    tableau.style.display = 'none';
+    btns[0].classList.add('active');
+    btns[1].classList.remove('active');
+  } else {
+    dashboard.style.display = 'none';
+    tableau.style.display = 'block';
+    btns[0].classList.remove('active');
+    btns[1].classList.add('active');
+    chargerTableauKPI();
+  }
+}
+
+async function chargerTableauKPI() {
+  const mois = document.getElementById('kpiTableauPeriode')?.value || 'M1';
+  const container = document.getElementById('kpiTableauData');
+  if (!container) return;
+  container.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8">🔄 Chargement...</div>';
+
+  try {
+    const users = await fetch('/api/collaborateurs').then(r => r.json());
+    const conseillers = users.filter(u => u.role === 'collaborateur' || u.role === 'conseiller');
+
+    if (!conseillers.length) {
+      container.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8">Aucun conseiller trouvé</div>';
+      return;
+    }
+
+    // Charger les KPI de tous les conseillers
+    const kpiPromises = conseillers.map(u =>
+      fetch(`/api/kpi-commerciaux/${u.id}`).then(r => r.json()).then(data => ({ user: u, kpi: Array.isArray(data) ? data.find(k => k.mois === mois) : null })).catch(() => ({ user: u, kpi: null }))
+    );
+    const results = await Promise.all(kpiPromises);
+
+    const periodeMap = { 'M0':'Février 2026','MI':'Intégration','M1':'Mars 2026','M2':'Avril 2026','M3':'Mai 2026','M4':'Juin 2026','M5':'Juillet 2026' };
+
+    container.innerHTML = `
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr style="background:#1A3A6B;color:#fff">
+              <th>Conseiller</th>
+              <th>Site</th>
+              <th>Appels</th>
+              <th>Contrats</th>
+              <th>CAC (€)</th>
+              <th>CA (€)</th>
+              <th>Taux closing</th>
+              <th>Taux comm.</th>
+              <th>Taux atteinte</th>
+              <th>Saisi par</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${results.map(({ user: u, kpi: k }) => {
+              const tauxColor = k?.tauxAtteinte >= 100 ? '#16a34a' : k?.tauxAtteinte >= 70 ? '#f59e0b' : '#dc2626';
+              return `<tr>
+                <td style="font-weight:600">${u.prenom} ${u.nom}</td>
+                <td style="font-size:12px;color:#64748b">${u.site || '—'}</td>
+                <td style="font-size:13px">${k?.appels?.toLocaleString('fr-FR') || '<span style="color:#94a3b8">—</span>'}</td>
+                <td style="font-size:13px">${k?.contratsValides !== undefined ? `<strong>${k.contratsValides}</strong>` : '<span style="color:#94a3b8">—</span>'}</td>
+                <td style="font-size:13px">${k?.cac ? k.cac.toLocaleString('fr-FR') + ' €' : '<span style="color:#94a3b8">—</span>'}</td>
+                <td style="font-size:13px">${k?.ca ? k.ca.toLocaleString('fr-FR') + ' €' : '<span style="color:#94a3b8">—</span>'}</td>
+                <td style="font-size:13px">${k?.tauxClosingFicheFraiche !== undefined ? k.tauxClosingFicheFraiche + '%' : '<span style="color:#94a3b8">—</span>'}</td>
+                <td style="font-size:13px">${k?.tauxCommunication !== undefined ? k.tauxCommunication + '%' : '<span style="color:#94a3b8">—</span>'}</td>
+                <td>${k?.tauxAtteinte !== undefined ? `<span style="background:${tauxColor}20;color:${tauxColor};padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700">${k.tauxAtteinte}%</span>` : '<span style="color:#94a3b8;font-size:12px">Non saisi</span>'}</td>
+                <td style="font-size:11px;color:#64748b">${k?.modifiePar || '—'}</td>
+                <td>
+                  <button onclick="ouvrirSaisieKPIPour(${u.id}, '${u.prenom} ${u.nom}', '${mois}')" style="background:#1A3A6B;color:#fff;border:none;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">✏️ Modifier</button>
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:12px;font-size:12px;color:#94a3b8;text-align:right">Période : ${periodeMap[mois] || mois} • ${results.filter(r => r.kpi).length}/${results.length} conseillers avec données</div>
+    `;
+  } catch(e) {
+    container.innerHTML = `<div style="color:red;padding:20px">Erreur : ${e.message}</div>`;
+  }
+}
+
+async function ouvrirSaisieKPIPour(userId, nom, mois) {
+  await ouvrirSaisieKPI();
+  // Pré-sélectionner le conseiller et la période
+  setTimeout(() => {
+    const selUser = document.getElementById('kpiUserId');
+    const selMois = document.getElementById('kpiMois');
+    if (selUser) selUser.value = userId;
+    if (selMois) selMois.value = mois;
+    chargerKPIConseiller();
+  }, 200);
 }
 
 async function loadPlanningUnifie() {
