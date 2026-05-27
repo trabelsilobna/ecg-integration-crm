@@ -2937,7 +2937,7 @@ async function sauvegarderKPI() {
     const data = await res.json();
     if (data.success) {
       document.getElementById('modalKPI').remove();
-      await loadKPI();
+      await loadKpi();
       alert('✅ KPI sauvegardés avec succès !');
     } else {
       alert('❌ ' + (data.error || 'Erreur'));
