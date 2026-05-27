@@ -281,17 +281,35 @@ app.delete('/api/collaborateurs/:id', requireAdmin, async (req, res) => {
   const users = await readDataA('users.json');
   const user = users.find(u => u.id === id);
   if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
-  // Empêcher la suppression de son propre compte
   if (req.session.user.id === id) return res.status(400).json({ error: 'Vous ne pouvez pas supprimer votre propre compte' });
-  // Empêcher la suppression du dernier admin
   if (user.role === 'admin') {
     const admins = users.filter(u => u.role === 'admin');
     if (admins.length <= 1) return res.status(400).json({ error: 'Impossible de supprimer le dernier administrateur' });
   }
   const newUsers = users.filter(u => u.id !== id);
   await writeDataA('users.json', newUsers);
+  // Supprimer aussi dans PostgreSQL si actif
+  try {
+    if (db.isUsingDB()) {
+      const dbModule = require('./db-pg');
+      await dbModule.query('DELETE FROM ecg_users WHERE id = $1 OR login = $2', [id, user.login]);
+      console.log(`🗑️ Supprimé de PostgreSQL : ${user.login}`);
+    }
+  } catch(e) { console.warn('Suppression PG:', e.message); }
   console.log(`🗑️ Compte supprimé : ${user.login} (${user.role}) par ${req.session.user.login}`);
   res.json({ success: true, message: `Compte de ${user.prenom} ${user.nom} supprimé` });
+});
+
+// ─── NETTOYAGE TEMPORAIRE ─────────────────────────────────────────────────────
+app.get('/api/admin/cleanup-matteo', requireAdmin, async (req, res) => {
+  try {
+    const db2 = require('./db-pg');
+    await db2.query("DELETE FROM ecg_users WHERE data->>'prenom' = 'Matteo' AND data->>'nom' = 'Nicolas'");
+    await db2.query("DELETE FROM ecg_users WHERE login = 'matteo.nicolas'");
+    res.json({ success: true, message: 'Matteo Nicolas supprimé de PostgreSQL' });
+  } catch(e) {
+    res.json({ success: false, error: e.message });
+  }
 });
 
 // ─── API PARCOURS ─────────────────────────────────────────────────────────────
