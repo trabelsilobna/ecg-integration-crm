@@ -123,11 +123,14 @@ async function readDataAsync(file) {
 
   if (file === 'users.json') {
     const r = await query('SELECT id, login, data FROM ecg_users ORDER BY id');
-    return r.rows.map(row => ({
-      ...row.data,
-      id: row.data.id || row.id,
-      login: row.data.login || row.login || row.data.email
-    }));
+    return r.rows.map(row => {
+      const d = typeof row.data === 'string' ? JSON.parse(row.data) : row.data;
+      return {
+        ...d,
+        id: d.id || row.id,
+        login: d.login || row.login || d.email
+      };
+    });
   }
 
   const r = await query('SELECT value FROM ecg_kv WHERE key = $1', [file]);
