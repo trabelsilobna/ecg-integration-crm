@@ -5,12 +5,36 @@
     "jour": "jour_1",
     "fichier_origine": "Quiz J1",
     "questions": [
-      {"id": 1, "question": "Qu'est-ce qu'une mutuelle santé ?", "type": "text"},
-      {"id": 2, "question": "Citez 3 garanties essentielles d'une complémentaire santé.", "type": "text"},
-      {"id": 3, "question": "Quelle est la différence entre le ticket modérateur et le reste à charge ?", "type": "text"},
-      {"id": 4, "question": "Qu'est-ce que le RAC0 (Reste À Charge Zéro) ?", "type": "text"},
-      {"id": 5, "question": "Donnez la définition de la Sécurité Sociale.", "type": "text"},
-      {"id": 6, "question": "Quel est le rôle d'un conseiller en assurance santé ?", "type": "text"}
+      {
+        "id": 1,
+        "question": "Qu'est-ce qu'une mutuelle santé ?",
+        "type": "text"
+      },
+      {
+        "id": 2,
+        "question": "Citez 3 garanties essentielles d'une complémentaire santé.",
+        "type": "text"
+      },
+      {
+        "id": 3,
+        "question": "Quelle est la différence entre le ticket modérateur et le reste à charge ?",
+        "type": "text"
+      },
+      {
+        "id": 4,
+        "question": "Qu'est-ce que le RAC0 (Reste À Charge Zéro) ?",
+        "type": "text"
+      },
+      {
+        "id": 5,
+        "question": "Donnez la définition de la Sécurité Sociale.",
+        "type": "text"
+      },
+      {
+        "id": 6,
+        "question": "Quel est le rôle d'un conseiller en assurance santé ?",
+        "type": "text"
+      }
     ]
   },
   {
@@ -19,12 +43,36 @@
     "jour": "jour_2",
     "fichier_origine": "Quiz Assurance Reglementaire",
     "questions": [
-      {"id": 1, "question": "Qu'est-ce que l'ORIAS ? Quel est son rôle ?", "type": "text"},
-      {"id": 2, "question": "Que signifie DDA (Directive Distribution d'Assurance) ?", "type": "text"},
-      {"id": 3, "question": "Qu'est-ce que le RGPD et comment s'applique-t-il dans votre métier ?", "type": "text"},
-      {"id": 4, "question": "Quelle est la phrase légale obligatoire à dire en début d'appel ?", "type": "text"},
-      {"id": 5, "question": "Qu'est-ce qu'une fiche de besoin et pourquoi est-elle obligatoire ?", "type": "text"},
-      {"id": 6, "question": "Citez 3 obligations du conseiller en matière de conformité.", "type": "text"}
+      {
+        "id": 1,
+        "question": "Qu'est-ce que l'ORIAS ? Quel est son rôle ?",
+        "type": "text"
+      },
+      {
+        "id": 2,
+        "question": "Que signifie DDA (Directive Distribution d'Assurance) ?",
+        "type": "text"
+      },
+      {
+        "id": 3,
+        "question": "Qu'est-ce que le RGPD et comment s'applique-t-il dans votre métier ?",
+        "type": "text"
+      },
+      {
+        "id": 4,
+        "question": "Quelle est la phrase légale obligatoire à dire en début d'appel ?",
+        "type": "text"
+      },
+      {
+        "id": 5,
+        "question": "Qu'est-ce qu'une fiche de besoin et pourquoi est-elle obligatoire ?",
+        "type": "text"
+      },
+      {
+        "id": 6,
+        "question": "Citez 3 obligations du conseiller en matière de conformité.",
+        "type": "text"
+      }
     ]
   },
   {
@@ -33,13 +81,41 @@
     "jour": "jour_3",
     "fichier_origine": "Quiz QCM Postes de soins",
     "questions": [
-      {"id": 1, "question": "Quels sont les principaux postes de soins couverts par une complémentaire santé ?", "type": "text"},
-      {"id": 2, "question": "Qu'est-ce que le forfait hospitalier ?", "type": "text"},
-      {"id": 3, "question": "Différence entre optique simple et complexe en termes de remboursement ?", "type": "text"},
-      {"id": 4, "question": "Qu'est-ce que le réseau de soins ? Donnez un exemple.", "type": "text"},
-      {"id": 5, "question": "Comment se calcule le remboursement dentaire en pourcentage du BR ?", "type": "text"},
-      {"id": 6, "question": "Qu'est-ce que la médecine douce / alternative ? Est-elle remboursée ?", "type": "text"},
-      {"id": 7, "question": "Expliquez la différence entre chambre particulière et chambre double.", "type": "text"}
+      {
+        "id": 1,
+        "question": "Quels sont les principaux postes de soins couverts par une complémentaire santé ?",
+        "type": "text"
+      },
+      {
+        "id": 2,
+        "question": "Qu'est-ce que le forfait hospitalier ?",
+        "type": "text"
+      },
+      {
+        "id": 3,
+        "question": "Différence entre optique simple et complexe en termes de remboursement ?",
+        "type": "text"
+      },
+      {
+        "id": 4,
+        "question": "Qu'est-ce que le réseau de soins ? Donnez un exemple.",
+        "type": "text"
+      },
+      {
+        "id": 5,
+        "question": "Comment se calcule le remboursement dentaire en pourcentage du BR ?",
+        "type": "text"
+      },
+      {
+        "id": 6,
+        "question": "Qu'est-ce que la médecine douce / alternative ? Est-elle remboursée ?",
+        "type": "text"
+      },
+      {
+        "id": 7,
+        "question": "Expliquez la différence entre chambre particulière et chambre double.",
+        "type": "text"
+      }
     ]
   },
   {
@@ -48,11 +124,31 @@
     "jour": "jour_4",
     "fichier_origine": "Exercices Quiz Jour4",
     "questions": [
-      {"id": 1, "question": "Simulez une accroche téléphonique complète (écrivez votre script).", "type": "textarea"},
-      {"id": 2, "question": "Un client dit 'C'est trop cher'. Comment répondez-vous ? (Méthode ARC)", "type": "textarea"},
-      {"id": 3, "question": "Citez les 6 questions de découverte client essentielles.", "type": "text"},
-      {"id": 4, "question": "Comment présentez-vous une garantie optique à un client de 45 ans ?", "type": "textarea"},
-      {"id": 5, "question": "Quelle compagnie conseilleriez-vous à un senior de 65 ans avec un petit budget ? Justifiez.", "type": "textarea"}
+      {
+        "id": 1,
+        "question": "Simulez une accroche téléphonique complète (écrivez votre script).",
+        "type": "textarea"
+      },
+      {
+        "id": 2,
+        "question": "Un client dit 'C'est trop cher'. Comment répondez-vous ? (Méthode ARC)",
+        "type": "textarea"
+      },
+      {
+        "id": 3,
+        "question": "Citez les 6 questions de découverte client essentielles.",
+        "type": "text"
+      },
+      {
+        "id": 4,
+        "question": "Comment présentez-vous une garantie optique à un client de 45 ans ?",
+        "type": "textarea"
+      },
+      {
+        "id": 5,
+        "question": "Quelle compagnie conseilleriez-vous à un senior de 65 ans avec un petit budget ? Justifiez.",
+        "type": "textarea"
+      }
     ]
   },
   {
@@ -61,11 +157,138 @@
     "jour": "jour_10",
     "fichier_origine": "Quiz optionnel Outils et autoevaluation",
     "questions": [
-      {"id": 1, "question": "Quels sont les 7 TOPs d'excellence ECG ? Décrivez chacun.", "type": "textarea"},
-      {"id": 2, "question": "Présentez les 3 compagnies que vous maîtrisez le mieux avec leurs avantages.", "type": "textarea"},
-      {"id": 3, "question": "Comment gérez-vous un client mécontent qui veut résilier ?", "type": "textarea"},
-      {"id": 4, "question": "Quelle est votre méthode de closing préférée ? Expliquez.", "type": "textarea"},
-      {"id": 5, "question": "Auto-évaluation : Quel est votre point fort et votre axe d'amélioration ?", "type": "textarea"}
+      {
+        "id": 1,
+        "question": "Quels sont les 7 TOPs d'excellence ECG ? Décrivez chacun.",
+        "type": "textarea"
+      },
+      {
+        "id": 2,
+        "question": "Présentez les 3 compagnies que vous maîtrisez le mieux avec leurs avantages.",
+        "type": "textarea"
+      },
+      {
+        "id": 3,
+        "question": "Comment gérez-vous un client mécontent qui veut résilier ?",
+        "type": "textarea"
+      },
+      {
+        "id": 4,
+        "question": "Quelle est votre méthode de closing préférée ? Expliquez.",
+        "type": "textarea"
+      },
+      {
+        "id": 5,
+        "question": "Auto-évaluation : Quel est votre point fort et votre axe d'amélioration ?",
+        "type": "textarea"
+      }
+    ]
+  },
+  {
+    "id": "cas_j2",
+    "titre": "Cas Pratique J2 — Informer un client",
+    "jour": "jour_2",
+    "type": "cas_pratique",
+    "fichier_origine": "Cas pratique Informer client",
+    "questions": [
+      {
+        "id": 1,
+        "question": "Un client vous appelle pour s'informer sur une mutuelle santé. Rédigez votre discours d'accueil complet (avec phrase légale ORIAS).",
+        "type": "textarea"
+      },
+      {
+        "id": 2,
+        "question": "Le client demande : 'C'est quoi exactement une complémentaire santé ?' Répondez-lui simplement et clairement.",
+        "type": "textarea"
+      },
+      {
+        "id": 3,
+        "question": "Comment expliquez-vous la différence entre la Sécurité Sociale et une mutuelle à un client qui ne comprend pas ?",
+        "type": "textarea"
+      },
+      {
+        "id": 4,
+        "question": "Le client dit qu'il a déjà une mutuelle via son employeur. Comment gérez-vous cette situation ?",
+        "type": "textarea"
+      },
+      {
+        "id": 5,
+        "question": "Quelles sont les 3 questions de découverte que vous posez en priorité pour qualifier le besoin du client ?",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "id": "cas_j3",
+    "titre": "Cas Pratique J3 — Garanties & Postes de soins",
+    "jour": "jour_3",
+    "type": "cas_pratique",
+    "fichier_origine": "Cas Pratiques Jour3",
+    "questions": [
+      {
+        "id": 1,
+        "question": "Un client de 55 ans porte des lunettes et a des problèmes dentaires. Quelle offre lui proposez-vous et pourquoi ? (Citez la compagnie et les garanties)",
+        "type": "textarea"
+      },
+      {
+        "id": 2,
+        "question": "Expliquez à un client ce que signifie '150% BR en dentaire'. Utilisez un exemple chiffré.",
+        "type": "textarea"
+      },
+      {
+        "id": 3,
+        "question": "Un client demande si les médecines douces (ostéopathie, acupuncture) sont remboursées. Que répondez-vous ?",
+        "type": "textarea"
+      },
+      {
+        "id": 4,
+        "question": "Simulez un argumentaire complet pour vendre une garantie hospitalisation à un client de 40 ans.",
+        "type": "textarea"
+      },
+      {
+        "id": 5,
+        "question": "Un client compare deux offres : NÉOLIANE Senior vs ASAF/AFPS. Aidez-le à choisir selon son profil (retraité, 68 ans, budget serré).",
+        "type": "textarea"
+      },
+      {
+        "id": 6,
+        "question": "Qu'est-ce que le réseau KALIXIA ? Dans quel contexte le mentionnez-vous ?",
+        "type": "text"
+      }
+    ]
+  },
+  {
+    "id": "cas_j4",
+    "titre": "Cas Pratique J4 — Simulation d'appel complet",
+    "jour": "jour_4",
+    "type": "cas_pratique",
+    "fichier_origine": "Exercices Quiz Jour4",
+    "questions": [
+      {
+        "id": 1,
+        "question": "Rédigez un script d'appel COMPLET (de l'accroche au closing) pour un prospect de 35 ans, actif, sans mutuelle.",
+        "type": "textarea"
+      },
+      {
+        "id": 2,
+        "question": "Le client dit 'Je vais réfléchir'. Utilisez la méthode ARC pour traiter cette objection.",
+        "type": "textarea"
+      },
+      {
+        "id": 3,
+        "question": "Le client dit 'C'est trop cher, j'ai trouvé moins cher ailleurs'. Comment répondez-vous ?",
+        "type": "textarea"
+      },
+      {
+        "id": 4,
+        "question": "Comment faites-vous une vente additionnelle (upsell) à un client qui vient d'accepter une offre de base ?",
+        "type": "textarea"
+      },
+      {
+        "id": 5,
+        "question": "Rédigez votre phrase de closing préférée et expliquez pourquoi elle fonctionne.",
+        "type": "textarea"
+      }
     ]
   }
 ]

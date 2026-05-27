@@ -2109,8 +2109,10 @@ function renderRessources(list) {
           <div style="padding:6px 8px;">
             ${groupe.fichiers.map(f => {
               const isQuiz = f.titre.toLowerCase().includes('quiz') || f.titre.toLowerCase().includes('evaluation') || f.titre.toLowerCase().includes('évaluation');
+              const isCas = f.titre.toLowerCase().includes('cas pratique') || f.titre.toLowerCase().includes('cas_pratique') || f.titre.toLowerCase().includes('exercice');
               const quizIdMap = { 'jour_1': 'quiz_j1', 'jour_2': 'quiz_j2', 'jour_3': 'quiz_j3', 'jour_4': 'quiz_j4', 'jour_10': 'quiz_j10' };
-              const quizId = quizIdMap[f.jour] || null;
+              const casIdMap = { 'jour_2': 'cas_j2', 'jour_3': 'cas_j3', 'jour_4': 'cas_j4' };
+              const quizId = isQuiz ? (quizIdMap[f.jour] || null) : (isCas ? (casIdMap[f.jour] || null) : null);
               return `<div style="display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:8px;" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='transparent'">
                 <span style="font-size:1.2rem;">${f.icone}</span>
                 <div style="flex:1;min-width:0;">
@@ -2119,7 +2121,7 @@ function renderRessources(list) {
                 </div>
                 <div style="display:flex;gap:6px;flex-shrink:0;">
                   ${f.url ? `<button onclick="openDocViewer('${f.url}', encodeURIComponent('${f.titre.replace(/'/g, "\\'").replace(/"/g, '&quot;')}'))" style="background:#1A3A6B;color:white;border:none;padding:5px 14px;border-radius:6px;font-size:0.78rem;cursor:pointer;">👁 Voir</button>` : ''}
-                  ${isQuiz && quizId ? `<button onclick="ouvrirQuiz('${quizId}')" style="background:#16a34a;color:white;border:none;padding:5px 14px;border-radius:6px;font-size:0.78rem;cursor:pointer;font-weight:600;">📝 Faire le quiz</button>` : ''}
+                  ${(isQuiz || isCas) && quizId ? `<button onclick="ouvrirQuiz('${quizId}')" style="background:${isCas?'#7c3aed':'#16a34a'};color:white;border:none;padding:5px 14px;border-radius:6px;font-size:0.78rem;cursor:pointer;font-weight:600;">${isCas?'✍️ Cas pratique':'📝 Faire le quiz'}</button>` : ''}
                 </div>
               </div>`;
             }).join('')}
