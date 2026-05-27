@@ -390,6 +390,41 @@ app.put('/api/quiz/corriger/:id', requireAuth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+// ─── KPI MODIFICATION MANUELLE ───────────────────────────────────────────────
+
+app.put('/api/kpi-commerciaux/:userId/:mois', requireAuth, async (req, res) => {
+  const role = req.session.user.role;
+  if (!['admin', 'coach', 'manager', 'pmo', 'rh', 'pdg'].includes(role)) {
+    return res.status(403).json({ error: 'Accès refusé' });
+  }
+  const userId = parseInt(req.params.userId);
+  const mois = req.params.mois;
+  const updates = req.body;
+  const data = await readDataA('kpi_commerciaux.json');
+  const idx = data.realisations.findIndex(r => r.userId === userId && r.mois === mois);
+  if (idx === -1) {
+    // Créer une nouvelle entrée si elle n'existe pas
+    data.realisations.push({ userId, mois, ...updates, modifiePar: req.session.user.login, dateModification: new Date().toLocaleDateString('fr-FR') });
+  } else {
+    data.realisations[idx] = { ...data.realisations[idx], ...updates, modifiePar: req.session.user.login, dateModification: new Date().toLocaleDateString('fr-FR') };
+  }
+  await writeDataA('kpi_commerciaux.json', data);
+  res.json({ success: true });
+});
+
+app.post('/api/kpi-commerciaux/:userId', requireAuth, async (req, res) => {
+  const role = req.session.user.role;
+  if (!['admin', 'coach', 'manager', 'pmo', 'rh', 'pdg'].includes(role)) {
+    return res.status(403).json({ error: 'Accès refusé' });
+  }
+  const userId = parseInt(req.params.userId);
+  const data = await readDataA('kpi_commerciaux.json');
+  const newEntry = { userId, ...req.body, modifiePar: req.session.user.login, dateModification: new Date().toLocaleDateString('fr-FR') };
+  data.realisations.push(newEntry);
+  await writeDataA('kpi_commerciaux.json', data);
+  res.json({ success: true });
+});
+
 // ─── SYNC FORCÉE JSON → PostgreSQL ───────────────────────────────────────────
 app.get('/api/sync-users-ecg2026', async (req, res) => {
   try {

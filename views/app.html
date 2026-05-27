@@ -835,9 +835,14 @@
 
     <!-- ── PAGE KPI ── -->
     <div class="page" id="page-kpi">
-      <div class="page-header">
-        <h2>📊 Tableau de bord RH</h2>
-        <p>Absentéisme, turnover, analyse par phase et alertes IA</p>
+      <div class="page-header flex-between" style="flex-wrap:wrap;gap:12px">
+        <div>
+          <h2>📊 Tableau de bord RH</h2>
+          <p>Absentéisme, turnover, analyse par phase et alertes IA</p>
+        </div>
+        <button id="btnSaisieKPI" onclick="ouvrirSaisieKPI()" style="background:#1A3A6B;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;display:none">
+          ✏️ Saisir KPI manuellement
+        </button>
       </div>
 
       <!-- Stat cards globales -->
@@ -1460,6 +1465,11 @@ function updateSidebar() {
   // Planning Unifié visible pour coach, admin, manager, conseiller, rh, pdg, pmo — caché pour recruteur
   const showPlanningUnifie = !['recruteur'].includes(currentUser.role);
   document.getElementById('navPlanningUnifie').style.display = showPlanningUnifie ? 'flex' : 'none';
+  // Bouton saisie KPI visible pour admin, coach, manager, pmo, rh, pdg
+  const btnKPI = document.getElementById('btnSaisieKPI');
+  if (btnKPI && ['admin', 'coach', 'manager', 'pmo', 'rh', 'pdg'].includes(currentUser.role)) {
+    btnKPI.style.display = 'block';
+  }
   // Afficher le lien Gestion Plateforme uniquement pour le PMO
   const showAdmin = currentUser.role === 'pmo';
   document.getElementById('navAdminSection').style.display = showAdmin ? 'block' : 'none';
@@ -2783,6 +2793,167 @@ function confirmerDecision() {
 }
 
 // ── PLANNING UNIFIÉ 22 JOURS ──
+// ── SAISIE KPI MANUELLE ──────────────────────────────────────────────────────
+async function ouvrirSaisieKPI() {
+  const users = await fetch('/api/collaborateurs').then(r => r.json());
+  const conseillers = users.filter(u => u.role === 'collaborateur' || u.role === 'conseiller');
+
+  let modal = document.getElementById('modalKPI');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'modalKPI';
+    modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;overflow-y:auto;';
+    document.body.appendChild(modal);
+  }
+
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:16px;width:100%;max-width:750px;max-height:90vh;overflow-y:auto;">
+      <div style="background:#1A3A6B;color:#fff;padding:20px 24px;border-radius:16px 16px 0 0;position:sticky;top:0;z-index:1">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:1.1rem;font-weight:700">✏️ Saisie manuelle des KPI</div>
+          <button onclick="document.getElementById('modalKPI').remove()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px">✕</button>
+        </div>
+      </div>
+      <div style="padding:24px">
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+          <div>
+            <label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Conseiller *</label>
+            <select id="kpiUserId" onchange="chargerKPIConseiller()" style="width:100%;padding:9px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px">
+              <option value="">-- Choisir un conseiller --</option>
+              ${conseillers.map(u => `<option value="${u.id}">${u.prenom} ${u.nom}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Période *</label>
+            <select id="kpiMois" style="width:100%;padding:9px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px">
+              <option value="M0">M0 — Février 2026</option>
+              <option value="MI">MI — Intégration</option>
+              <option value="M1">M1 — Mars 2026</option>
+              <option value="M2">M2 — Avril 2026</option>
+              <option value="M3">M3 — Mai 2026</option>
+              <option value="M4">M4 — Juin 2026</option>
+              <option value="M5">M5 — Juillet 2026</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:16px">
+          <div style="font-weight:700;color:#1A3A6B;margin-bottom:12px;font-size:13px">📞 Activité Commerciale</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">
+            ${[
+              {id:'appels', label:'Appels', placeholder:'ex: 1500'},
+              {id:'contratsValides', label:'Contrats validés', placeholder:'ex: 12'},
+              {id:'contratsMD', label:'Contrats MD', placeholder:'ex: 3'},
+              {id:'cac', label:'CAC (€)', placeholder:'ex: 2500'},
+              {id:'ca', label:'CA (€)', placeholder:'ex: 15000'},
+              {id:'tauxClosingFicheFraiche', label:'Taux closing (%)', placeholder:'ex: 25'},
+              {id:'tauxCommunication', label:'Taux communication (%)', placeholder:'ex: 75'},
+            ].map(f => `<div>
+              <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:3px">${f.label}</label>
+              <input type="number" id="kpi_${f.id}" placeholder="${f.placeholder}" step="0.01" style="width:100%;padding:7px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:13px;box-sizing:border-box">
+            </div>`).join('')}
+          </div>
+        </div>
+
+        <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:16px">
+          <div style="font-weight:700;color:#1A3A6B;margin-bottom:12px;font-size:13px">📅 Présence & Assiduité</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">
+            ${[
+              {id:'joursTravailles', label:'Jours travaillés', placeholder:'ex: 20'},
+              {id:'absences', label:'Absences', placeholder:'ex: 0'},
+              {id:'retards', label:'Retards', placeholder:'ex: 1'},
+              {id:'objectifJoursTravailles', label:'Objectif jours', placeholder:'ex: 22'},
+            ].map(f => `<div>
+              <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:3px">${f.label}</label>
+              <input type="number" id="kpi_${f.id}" placeholder="${f.placeholder}" style="width:100%;padding:7px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:13px;box-sizing:border-box">
+            </div>`).join('')}
+          </div>
+        </div>
+
+        <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:16px">
+          <div style="font-weight:700;color:#1A3A6B;margin-bottom:12px;font-size:13px">🎯 Objectifs</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">
+            ${[
+              {id:'objectifContratsValides', label:'Obj. contrats', placeholder:'ex: 15'},
+              {id:'objectifCac', label:'Obj. CAC (€)', placeholder:'ex: 3000'},
+              {id:'objectifCa', label:'Obj. CA (€)', placeholder:'ex: 20000'},
+              {id:'objectifTauxClosing', label:'Obj. taux closing (%)', placeholder:'ex: 25'},
+              {id:'objectifTauxCommunication', label:'Obj. taux comm. (%)', placeholder:'ex: 75'},
+            ].map(f => `<div>
+              <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:3px">${f.label}</label>
+              <input type="number" id="kpi_${f.id}" placeholder="${f.placeholder}" step="0.01" style="width:100%;padding:7px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:13px;box-sizing:border-box">
+            </div>`).join('')}
+          </div>
+        </div>
+
+        <div style="background:#f8fafc;border-radius:10px;padding:16px;margin-bottom:20px">
+          <label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">💬 Commentaire</label>
+          <textarea id="kpi_commentaire" rows="2" placeholder="Observations, contexte..." style="width:100%;padding:9px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;box-sizing:border-box;resize:vertical;font-family:inherit"></textarea>
+        </div>
+
+        <div style="display:flex;gap:12px;justify-content:flex-end">
+          <button onclick="document.getElementById('modalKPI').remove()" style="background:#f1f5f9;color:#475569;border:none;padding:10px 24px;border-radius:8px;cursor:pointer;font-weight:600">Annuler</button>
+          <button onclick="sauvegarderKPI()" style="background:#1A3A6B;color:#fff;border:none;padding:10px 24px;border-radius:8px;cursor:pointer;font-weight:700">💾 Sauvegarder les KPI</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function chargerKPIConseiller() {
+  const userId = document.getElementById('kpiUserId').value;
+  const mois = document.getElementById('kpiMois').value;
+  if (!userId) return;
+  try {
+    const data = await fetch(`/api/kpi-commerciaux/${userId}`).then(r => r.json());
+    const kpiMois = data.find(k => k.mois === mois);
+    if (kpiMois) {
+      const fields = ['appels','contratsValides','contratsMD','cac','ca','tauxClosingFicheFraiche','tauxCommunication','joursTravailles','absences','retards','objectifJoursTravailles','objectifContratsValides','objectifCac','objectifCa','objectifTauxClosing','objectifTauxCommunication'];
+      fields.forEach(f => {
+        const el = document.getElementById('kpi_' + f);
+        if (el && kpiMois[f] !== undefined) el.value = kpiMois[f];
+      });
+      if (document.getElementById('kpi_commentaire') && kpiMois.commentaire) {
+        document.getElementById('kpi_commentaire').value = kpiMois.commentaire;
+      }
+    }
+  } catch(e) {}
+}
+
+async function sauvegarderKPI() {
+  const userId = document.getElementById('kpiUserId').value;
+  const mois = document.getElementById('kpiMois').value;
+  if (!userId) { alert('⚠️ Veuillez choisir un conseiller'); return; }
+
+  const periodeMap = { 'M0':'Février 2026','MI':'Intégration','M1':'Mars 2026','M2':'Avril 2026','M3':'Mai 2026','M4':'Juin 2026','M5':'Juillet 2026' };
+  const fields = ['appels','contratsValides','contratsMD','cac','ca','tauxClosingFicheFraiche','tauxCommunication','joursTravailles','absences','retards','objectifJoursTravailles','objectifContratsValides','objectifCac','objectifCa','objectifTauxClosing','objectifTauxCommunication'];
+  const kpiData = { mois, periode: periodeMap[mois] || mois };
+  fields.forEach(f => {
+    const el = document.getElementById('kpi_' + f);
+    if (el && el.value !== '') kpiData[f] = parseFloat(el.value) || 0;
+  });
+  const commentaire = document.getElementById('kpi_commentaire')?.value;
+  if (commentaire) kpiData.commentaire = commentaire;
+
+  try {
+    const res = await fetch(`/api/kpi-commerciaux/${userId}/${mois}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(kpiData)
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('modalKPI').remove();
+      await loadKPI();
+      alert('✅ KPI sauvegardés avec succès !');
+    } else {
+      alert('❌ ' + (data.error || 'Erreur'));
+    }
+  } catch(e) {
+    alert('❌ Erreur : ' + e.message);
+  }
+}
+
 async function loadPlanningUnifie() {
   const container = document.getElementById('planningUnifieContent');
   if (!container) return;
