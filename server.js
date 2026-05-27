@@ -516,9 +516,9 @@ app.get('/api/messages/contacts', requireAuth, async (req, res) => {
   };
   const allowed = roleMap[user.role] || Object.keys(roleMap);
   const contacts = users
-    .filter(u => u.id !== user.id && u.id !== undefined && allowed.includes(u.role))
+    .filter(u => parseInt(u.id) !== parseInt(user.id) && u.id !== undefined && allowed.includes(u.role))
     .map(u => ({ id: u.id, nom: `${u.prenom} ${u.nom}`, role: u.role, site: u.site || '' }));
-  console.log(`contacts found: ${contacts.length}`);
+  console.log(`contacts found: ${contacts.length}, roles: ${[...new Set(users.map(u=>u.role))].join(',')}`);
   res.json(contacts);
 });
 
