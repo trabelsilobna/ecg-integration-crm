@@ -1820,33 +1820,39 @@ function ouvrirRessource(id) {
 // ── KPI ──
 async function loadKpi() {
   const kpi = await fetch('/api/kpi').then(r => r.json());
-  document.getElementById('kpiAvgProg').textContent = kpi.avgProgression + '%';
-  document.getElementById('kpiTermines').textContent = kpi.termines + '/' + kpi.totalCollaborateurs;
+  document.getElementById('kpiAvgProg').textContent = (kpi.avgProgression || 0) + '%';
+  document.getElementById('kpiTermines').textContent = (kpi.termines || 0) + '/' + (kpi.totalCollaborateurs || 0);
   // Indicateurs
-  document.getElementById('kpiDetails').innerHTML = kpi.kpis.map(k => `
-    <div class="kpi-item">
-      <div class="kpi-header">
-        <span class="kpi-label">${k.label}</span>
-        <span class="kpi-value">${k.pct}%</span>
+  const kpiDetails = document.getElementById('kpiDetails');
+  if (kpiDetails && kpi.kpis && Array.isArray(kpi.kpis)) {
+    kpiDetails.innerHTML = kpi.kpis.map(k => `
+      <div class="kpi-item">
+        <div class="kpi-header">
+          <span class="kpi-label">${k.label}</span>
+          <span class="kpi-value">${k.pct}%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${k.pct}%;background:${k.couleur}"></div>
+        </div>
+        <div class="text-muted" style="margin-top:4px">Objectif : ${k.objectif}%</div>
       </div>
-      <div class="progress-bar">
-        <div class="progress-fill" style="width:${k.pct}%;background:${k.couleur}"></div>
-      </div>
-      <div class="text-muted" style="margin-top:4px">Objectif : ${k.objectif}%</div>
-    </div>
-  `).join('');
+    `).join('');
+  }
   // Par site
-  document.getElementById('kpiSites').innerHTML = kpi.parSite.map(s => `
-    <div class="kpi-item">
-      <div class="kpi-header">
-        <span class="kpi-label">🏢 ${s.site}</span>
-        <span style="font-size:13px;color:var(--gray-600)">${s.count} collab.</span>
+  const kpiSites = document.getElementById('kpiSites');
+  if (kpiSites && kpi.parSite && Array.isArray(kpi.parSite)) {
+    kpiSites.innerHTML = kpi.parSite.map(s => `
+      <div class="kpi-item">
+        <div class="kpi-header">
+          <span class="kpi-label">🏢 ${s.site}</span>
+          <span style="font-size:13px;color:var(--gray-600)">${s.count} collab.</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${s.progression}%"></div>
+        </div>
       </div>
-      <div class="progress-bar">
-        <div class="progress-fill" style="width:${s.progression}%"></div>
-      </div>
-    </div>
-  `).join('');
+    `).join('');
+  }
   // Charger les nouveaux blocs
   await loadAbsenteisme();
   await loadTurnover();
@@ -1860,7 +1866,7 @@ async function loadAbsenteisme() {
   const data = await fetch(`/api/admin/absenteisme?annee=${annee}&mois=${mois}`).then(r => r.json());
 
   // Mettre à jour la stat card
-  document.getElementById('kpiAvgAbsenteisme').textContent = data.avgAbsenteisme + '%';
+  document.getElementById("kpiAvgAbsenteisme").textContent = (data.avgAbsenteisme || 0) + "%";
 
   const tbody = document.getElementById('absenteismeTable');
   if (!data.collaborateurs || data.collaborateurs.length === 0) {
