@@ -177,5 +177,21 @@
     "departement": "Commercial",
     "progression": 0,
     "statut": "en_cours"
+  },
+  {
+    "id": 14,
+    "nom": "Nicolas",
+    "prenom": "Matteo",
+    "email": "matteo.nicolas@ecg-group.com",
+    "login": "matteo.nicolas",
+    "password": "$2b$12$ec1nyzuaPSjWUGMrcfCh0Og1DRUzhCEdrXd2iVw7G/fYtlWJftzde",
+    "role": "collaborateur",
+    "poste": "Conseiller Commercial",
+    "site": "",
+    "departement": "",
+    "dateArrivee": "",
+    "progression": 0,
+    "statut": "en_cours",
+    "dateCreation": "27/05/2026"
   }
 ]
