@@ -2109,7 +2109,7 @@ function renderRessources(list) {
           <div style="padding:6px 8px;">
             ${groupe.fichiers.map(f => {
               const isQuiz = f.titre.toLowerCase().includes('quiz') || f.titre.toLowerCase().includes('evaluation') || f.titre.toLowerCase().includes('évaluation');
-              const isCas = f.titre.toLowerCase().includes('cas pratique') || f.titre.toLowerCase().includes('cas_pratique') || f.titre.toLowerCase().includes('exercice');
+              const isCas = f.titre.toLowerCase().includes('cas') || f.titre.toLowerCase().includes('exercice');
               const quizIdMap = { 'jour_1': 'quiz_j1', 'jour_2': 'quiz_j2', 'jour_3': 'quiz_j3', 'jour_4': 'quiz_j4', 'jour_10': 'quiz_j10' };
               const casIdMap = { 'jour_2': 'cas_j2', 'jour_3': 'cas_j3', 'jour_4': 'cas_j4' };
               const quizId = isQuiz ? (quizIdMap[f.jour] || null) : (isCas ? (casIdMap[f.jour] || null) : null);
