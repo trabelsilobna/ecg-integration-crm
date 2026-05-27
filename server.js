@@ -301,12 +301,12 @@ app.delete('/api/collaborateurs/:id', requireAdmin, async (req, res) => {
 });
 
 // ─── NETTOYAGE TEMPORAIRE ─────────────────────────────────────────────────────
-app.get('/api/admin/cleanup-matteo', requireAdmin, async (req, res) => {
+app.get('/api/cleanup-matteo-ecg2026', async (req, res) => {
   try {
     const db2 = require('./db-pg');
-    await db2.query("DELETE FROM ecg_users WHERE data->>'prenom' = 'Matteo' AND data->>'nom' = 'Nicolas'");
-    await db2.query("DELETE FROM ecg_users WHERE login = 'matteo.nicolas'");
-    res.json({ success: true, message: 'Matteo Nicolas supprimé de PostgreSQL' });
+    const r1 = await db2.query("DELETE FROM ecg_users WHERE data->>'prenom' = 'Matteo' AND data->>'nom' = 'Nicolas'");
+    const r2 = await db2.query("DELETE FROM ecg_users WHERE login = 'matteo.nicolas'");
+    res.json({ success: true, message: 'Matteo Nicolas supprimé', deleted: r1.rowCount + r2.rowCount });
   } catch(e) {
     res.json({ success: false, error: e.message });
   }
