@@ -500,22 +500,22 @@ app.get('/api/messages/unread/count', requireAuth, async (req, res) => {
 app.get('/api/messages/contacts', requireAuth, async (req, res) => {
   const user = req.session.user;
   const users = await readDataA('users.json');
-  // Règles de contact selon le rôle
   const roleMap = {
-    collaborateur: ['coach', 'formateur', 'recruteur', 'rh', 'manager', 'admin'],
-    coach: ['collaborateur', 'manager', 'rh', 'pmo', 'admin', 'pdg'],
-    formateur: ['collaborateur', 'coach', 'rh', 'manager', 'admin'],
-    recruteur: ['collaborateur', 'rh', 'manager', 'admin'],
+    collaborateur: ['coach', 'formateur', 'recruteur', 'rh', 'manager', 'admin', 'pmo', 'pdg'],
+    coach: ['collaborateur', 'manager', 'rh', 'pmo', 'admin', 'pdg', 'directeur_commercial'],
+    formateur: ['collaborateur', 'coach', 'rh', 'manager', 'admin', 'pmo'],
+    recruteur: ['collaborateur', 'rh', 'manager', 'admin', 'pmo'],
     manager: ['collaborateur', 'coach', 'formateur', 'recruteur', 'rh', 'pmo', 'admin', 'pdg'],
     rh: ['collaborateur', 'coach', 'formateur', 'recruteur', 'manager', 'pmo', 'admin', 'pdg'],
-    pmo: ['coach', 'formateur', 'manager', 'rh', 'admin', 'pdg'],
-    admin: ['collaborateur', 'coach', 'formateur', 'recruteur', 'manager', 'rh', 'pmo', 'pdg'],
-    pdg: ['manager', 'rh', 'pmo', 'admin', 'directeur_commercial'],
-    directeur_commercial: ['coach', 'manager', 'rh', 'pmo', 'admin', 'pdg']
+    pmo: ['coach', 'formateur', 'manager', 'rh', 'admin', 'pdg', 'collaborateur'],
+    admin: ['collaborateur', 'coach', 'formateur', 'recruteur', 'manager', 'rh', 'pmo', 'pdg', 'directeur_commercial'],
+    pdg: ['manager', 'rh', 'pmo', 'admin', 'directeur_commercial', 'coach'],
+    directeur_commercial: ['coach', 'manager', 'rh', 'pmo', 'admin', 'pdg', 'collaborateur']
   };
-  const allowed = roleMap[user.role] || [];
-  const contacts = users.filter(u => u.id !== user.id && allowed.includes(u.role))
-    .map(u => ({ id: u.id, nom: `${u.prenom} ${u.nom}`, role: u.role, site: u.site }));
+  const allowed = roleMap[user.role] || Object.keys(roleMap);
+  const contacts = users
+    .filter(u => u.id !== user.id && u.id !== undefined && allowed.includes(u.role))
+    .map(u => ({ id: u.id, nom: `${u.prenom} ${u.nom}`, role: u.role, site: u.site || '' }));
   res.json(contacts);
 });
 
