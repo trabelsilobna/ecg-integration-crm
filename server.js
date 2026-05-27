@@ -425,6 +425,100 @@ app.post('/api/kpi-commerciaux/:userId', requireAuth, async (req, res) => {
   res.json({ success: true });
 });
 
+// ─── MESSAGERIE INTERNE ──────────────────────────────────────────────────────
+
+app.get('/api/messages/conversations', requireAuth, async (req, res) => {
+  const userId = req.session.user.id;
+  const filePath = path.join(__dirname, 'data', 'messages.json');
+  let messages = [];
+  try { messages = JSON.parse(fs.readFileSync(filePath, 'utf8')); } catch(e) { messages = []; }
+  // Trouver toutes les conversations de l'utilisateur
+  const users = await readDataA('users.json');
+  const convMap = {};
+  messages.forEach(m => {
+    if (m.fromId === userId || m.toId === userId) {
+      const otherId = m.fromId === userId ? m.toId : m.fromId;
+      if (!convMap[otherId]) {
+        const other = users.find(u => u.id === otherId);
+        convMap[otherId] = { userId: otherId, nom: other ? `${other.prenom} ${other.nom}` : 'Inconnu', role: other?.role || '', lastMessage: m.content, lastDate: m.date, unread: 0 };
+      } else {
+        convMap[otherId].lastMessage = m.content;
+        convMap[otherId].lastDate = m.date;
+      }
+      if (m.toId === userId && !m.lu) convMap[otherId].unread++;
+    }
+  });
+  res.json(Object.values(convMap).sort((a, b) => new Date(b.lastDate) - new Date(a.lastDate)));
+});
+
+app.get('/api/messages/:withUserId', requireAuth, async (req, res) => {
+  const userId = req.session.user.id;
+  const withId = parseInt(req.params.withUserId);
+  const filePath = path.join(__dirname, 'data', 'messages.json');
+  let messages = [];
+  try { messages = JSON.parse(fs.readFileSync(filePath, 'utf8')); } catch(e) { messages = []; }
+  // Marquer comme lus
+  let changed = false;
+  messages.forEach(m => {
+    if (m.fromId === withId && m.toId === userId && !m.lu) { m.lu = true; changed = true; }
+  });
+  if (changed) fs.writeFileSync(filePath, JSON.stringify(messages, null, 2));
+  const conv = messages.filter(m => (m.fromId === userId && m.toId === withId) || (m.fromId === withId && m.toId === userId));
+  res.json(conv);
+});
+
+app.post('/api/messages', requireAuth, async (req, res) => {
+  const { toId, content } = req.body;
+  if (!toId || !content?.trim()) return res.status(400).json({ error: 'Destinataire et message requis' });
+  const filePath = path.join(__dirname, 'data', 'messages.json');
+  let messages = [];
+  try { messages = JSON.parse(fs.readFileSync(filePath, 'utf8')); } catch(e) { messages = []; }
+  const newMsg = {
+    id: Date.now(),
+    fromId: req.session.user.id,
+    fromNom: `${req.session.user.prenom} ${req.session.user.nom}`,
+    fromRole: req.session.user.role,
+    toId: parseInt(toId),
+    content: content.trim(),
+    date: new Date().toISOString(),
+    lu: false
+  };
+  messages.push(newMsg);
+  fs.writeFileSync(filePath, JSON.stringify(messages, null, 2));
+  res.json({ success: true, message: newMsg });
+});
+
+app.get('/api/messages/unread/count', requireAuth, async (req, res) => {
+  const userId = req.session.user.id;
+  const filePath = path.join(__dirname, 'data', 'messages.json');
+  let messages = [];
+  try { messages = JSON.parse(fs.readFileSync(filePath, 'utf8')); } catch(e) { messages = []; }
+  const count = messages.filter(m => m.toId === userId && !m.lu).length;
+  res.json({ count });
+});
+
+app.get('/api/messages/contacts', requireAuth, async (req, res) => {
+  const user = req.session.user;
+  const users = await readDataA('users.json');
+  // Règles de contact selon le rôle
+  const roleMap = {
+    collaborateur: ['coach', 'formateur', 'recruteur', 'rh', 'manager', 'admin'],
+    coach: ['collaborateur', 'manager', 'rh', 'pmo', 'admin', 'pdg'],
+    formateur: ['collaborateur', 'coach', 'rh', 'manager', 'admin'],
+    recruteur: ['collaborateur', 'rh', 'manager', 'admin'],
+    manager: ['collaborateur', 'coach', 'formateur', 'recruteur', 'rh', 'pmo', 'admin', 'pdg'],
+    rh: ['collaborateur', 'coach', 'formateur', 'recruteur', 'manager', 'pmo', 'admin', 'pdg'],
+    pmo: ['coach', 'formateur', 'manager', 'rh', 'admin', 'pdg'],
+    admin: ['collaborateur', 'coach', 'formateur', 'recruteur', 'manager', 'rh', 'pmo', 'pdg'],
+    pdg: ['manager', 'rh', 'pmo', 'admin', 'directeur_commercial'],
+    directeur_commercial: ['coach', 'manager', 'rh', 'pmo', 'admin', 'pdg']
+  };
+  const allowed = roleMap[user.role] || [];
+  const contacts = users.filter(u => u.id !== user.id && allowed.includes(u.role))
+    .map(u => ({ id: u.id, nom: `${u.prenom} ${u.nom}`, role: u.role, site: u.site }));
+  res.json(contacts);
+});
+
 // ─── SYNC FORCÉE JSON → PostgreSQL ───────────────────────────────────────────
 app.get('/api/sync-users-ecg2026', async (req, res) => {
   try {

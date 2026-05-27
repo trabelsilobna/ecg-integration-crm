@@ -614,6 +614,10 @@
       <span class="icon">📋</span> Planning Unifié 22J
     </a>
     <div class="nav-section-title" style="margin-top:8px">Mon Espace</div>
+    <a class="nav-item" href="#" data-page="messagerie" onclick="event.preventDefault();navigate('messagerie');loadMessagerie()">
+      <span class="icon">💬</span> Messagerie
+      <span id="msgBadge" style="display:none;background:#dc2626;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-left:auto">0</span>
+    </a>
     <a class="nav-item" href="#" data-page="profil" onclick="event.preventDefault();navigate('profil')">
       <span class="icon">👤</span> Mon Profil
     </a>
@@ -1205,6 +1209,41 @@
         <div style="text-align:center;padding:60px;color:#94a3b8">
           <div style="font-size:48px;margin-bottom:12px">🎟️</div>
           <div style="font-size:15px;font-weight:600">Sélectionnez un candidat pour voir son dossier d'entretien</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE MESSAGERIE -->
+    <div class="page" id="page-messagerie">
+      <div class="page-header">
+        <h2>💬 Messagerie interne</h2>
+        <p>Communiquez avec vos responsables et collaborateurs</p>
+      </div>
+      <div style="display:grid;grid-template-columns:300px 1fr;gap:16px;height:calc(100vh - 220px);min-height:500px">
+        <!-- Liste conversations -->
+        <div style="background:#fff;border-radius:12px;border:1.5px solid #e2e8f0;overflow:hidden;display:flex;flex-direction:column">
+          <div style="padding:12px 16px;border-bottom:1px solid #e2e8f0;background:#f8fafc">
+            <button onclick="ouvrirNouveauMessage()" style="width:100%;background:#1A3A6B;color:#fff;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">✉️ Nouveau message</button>
+          </div>
+          <div id="convList" style="overflow-y:auto;flex:1">
+            <div style="text-align:center;padding:30px;color:#94a3b8;font-size:13px">Chargement...</div>
+          </div>
+        </div>
+        <!-- Zone de conversation -->
+        <div style="background:#fff;border-radius:12px;border:1.5px solid #e2e8f0;display:flex;flex-direction:column;overflow:hidden">
+          <div id="convHeader" style="padding:16px;border-bottom:1px solid #e2e8f0;background:#f8fafc;font-weight:600;color:#1A3A6B;min-height:56px">
+            Sélectionnez une conversation
+          </div>
+          <div id="convMessages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:#f8fafc">
+            <div style="text-align:center;color:#94a3b8;font-size:13px;margin:auto">Aucune conversation sélectionnée</div>
+          </div>
+          <div id="convInput" style="padding:12px 16px;border-top:1px solid #e2e8f0;display:none">
+            <div style="display:flex;gap:10px">
+              <textarea id="msgInput" rows="2" placeholder="Écrivez votre message..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();envoyerMessage()}" style="flex:1;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;resize:none;font-family:inherit"></textarea>
+              <button onclick="envoyerMessage()" style="background:#1A3A6B;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;align-self:flex-end">Envoyer ➤</button>
+            </div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px">Entrée pour envoyer • Maj+Entrée pour nouvelle ligne</div>
+          </div>
         </div>
       </div>
     </div>
@@ -3145,6 +3184,160 @@ async function ouvrirSaisieKPIPour(userId, nom, mois) {
     if (selMois) selMois.value = mois;
     chargerKPIConseiller();
   }, 200);
+}
+
+// ── MESSAGERIE INTERNE ──────────────────────────────────────────────────────
+let currentConvUserId = null;
+let msgInterval = null;
+
+const roleLabelsMsg = { admin:'👑 Admin', rh:'👤 RH', pmo:'📋 PMO', pdg:'🏗️ PDG', manager:'🏢 Manager', collaborateur:'🙋 CC', recruteur:'🎯 Recruteur', coach:'🤝 Coach', formateur:'📚 Formateur', directeur_commercial:'💼 Dir. Commercial' };
+
+async function loadMessagerie() {
+  await chargerConversations();
+  // Vérifier les nouveaux messages toutes les 15s
+  if (msgInterval) clearInterval(msgInterval);
+  msgInterval = setInterval(async () => {
+    await chargerConversations();
+    if (currentConvUserId) await chargerMessages(currentConvUserId);
+    await mettreAJourBadge();
+  }, 15000);
+}
+
+async function chargerConversations() {
+  try {
+    const convs = await fetch('/api/messages/conversations').then(r => r.json());
+    const container = document.getElementById('convList');
+    if (!container) return;
+    if (!convs.length) {
+      container.innerHTML = '<div style="text-align:center;padding:30px;color:#94a3b8;font-size:13px">Aucune conversation.<br>Commencez par envoyer un message !</div>';
+      return;
+    }
+    container.innerHTML = convs.map(c => `
+      <div onclick="ouvrirConversation(${c.userId}, '${c.nom}', '${c.role}')"
+        style="padding:12px 16px;cursor:pointer;border-bottom:1px solid #f1f5f9;transition:background 0.15s;${currentConvUserId === c.userId ? 'background:#eff6ff;' : ''}"
+        onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='${currentConvUserId === c.userId ? '#eff6ff' : ''}'">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-weight:${c.unread > 0 ? '700' : '600'};font-size:13px;color:#1e293b">${c.nom}</div>
+            <div style="font-size:11px;color:#64748b;margin-top:2px">${roleLabelsMsg[c.role] || c.role}</div>
+          </div>
+          ${c.unread > 0 ? `<span style="background:#dc2626;color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center">${c.unread}</span>` : ''}
+        </div>
+        <div style="font-size:12px;color:#94a3b8;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.lastMessage}</div>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+async function ouvrirConversation(userId, nom, role) {
+  currentConvUserId = userId;
+  document.getElementById('convHeader').innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:36px;height:36px;border-radius:50%;background:#1A3A6B;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">${nom[0]}</div>
+      <div>
+        <div style="font-weight:700;color:#1A3A6B">${nom}</div>
+        <div style="font-size:12px;color:#64748b">${roleLabelsMsg[role] || role}</div>
+      </div>
+    </div>`;
+  document.getElementById('convInput').style.display = 'block';
+  await chargerMessages(userId);
+  await chargerConversations();
+  await mettreAJourBadge();
+}
+
+async function chargerMessages(userId) {
+  try {
+    const messages = await fetch(`/api/messages/${userId}`).then(r => r.json());
+    const container = document.getElementById('convMessages');
+    if (!container) return;
+    if (!messages.length) {
+      container.innerHTML = '<div style="text-align:center;color:#94a3b8;font-size:13px;margin:auto">Démarrez la conversation !</div>';
+      return;
+    }
+    container.innerHTML = messages.map(m => {
+      const isMine = m.fromId === currentUser.id;
+      const time = new Date(m.date).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+      const date = new Date(m.date).toLocaleDateString('fr-FR');
+      return `
+        <div style="display:flex;justify-content:${isMine ? 'flex-end' : 'flex-start'}">
+          <div style="max-width:70%;background:${isMine ? '#1A3A6B' : '#fff'};color:${isMine ? '#fff' : '#1e293b'};padding:10px 14px;border-radius:${isMine ? '16px 16px 4px 16px' : '16px 16px 16px 4px'};border:${isMine ? 'none' : '1px solid #e2e8f0'};box-shadow:0 1px 3px rgba(0,0,0,0.08)">
+            <div style="font-size:13px;line-height:1.5;white-space:pre-wrap">${m.content}</div>
+            <div style="font-size:10px;color:${isMine ? 'rgba(255,255,255,0.6)' : '#94a3b8'};margin-top:4px;text-align:right">${date} ${time}${isMine ? (m.lu ? ' ✓✓' : ' ✓') : ''}</div>
+          </div>
+        </div>`;
+    }).join('');
+    container.scrollTop = container.scrollHeight;
+  } catch(e) {}
+}
+
+async function envoyerMessage() {
+  if (!currentConvUserId) return;
+  const input = document.getElementById('msgInput');
+  const content = input?.value?.trim();
+  if (!content) return;
+  input.value = '';
+  try {
+    await fetch('/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ toId: currentConvUserId, content })
+    });
+    await chargerMessages(currentConvUserId);
+    await chargerConversations();
+  } catch(e) { alert('Erreur envoi : ' + e.message); }
+}
+
+async function ouvrirNouveauMessage() {
+  try {
+    const contacts = await fetch('/api/messages/contacts').then(r => r.json());
+    let modal = document.getElementById('modalNouveauMsg');
+    if (!modal) { modal = document.createElement('div'); modal.id = 'modalNouveauMsg'; modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box'; document.body.appendChild(modal); }
+    modal.innerHTML = `
+      <div style="background:#fff;border-radius:16px;padding:24px;max-width:480px;width:100%">
+        <div style="font-size:16px;font-weight:700;color:#1A3A6B;margin-bottom:16px">✉️ Nouveau message</div>
+        <div style="margin-bottom:12px">
+          <label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Destinataire</label>
+          <select id="newMsgTo" style="width:100%;padding:9px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px">
+            <option value="">-- Choisir --</option>
+            ${contacts.map(c => `<option value="${c.id}">${c.nom} — ${roleLabelsMsg[c.role]||c.role}${c.site ? ' ('+c.site+')' : ''}</option>`).join('')}
+          </select>
+        </div>
+        <div style="margin-bottom:16px">
+          <label style="font-size:12px;font-weight:600;color:#475569;display:block;margin-bottom:4px">Message</label>
+          <textarea id="newMsgContent" rows="4" placeholder="Votre message..." style="width:100%;padding:9px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;resize:none;box-sizing:border-box;font-family:inherit"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button onclick="document.getElementById('modalNouveauMsg').remove()" style="background:#f1f5f9;color:#475569;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600">Annuler</button>
+          <button onclick="envoyerNouveauMessage()" style="background:#1A3A6B;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:700">Envoyer ➤</button>
+        </div>
+      </div>`;
+  } catch(e) { alert('Erreur : ' + e.message); }
+}
+
+async function envoyerNouveauMessage() {
+  const toId = document.getElementById('newMsgTo')?.value;
+  const content = document.getElementById('newMsgContent')?.value?.trim();
+  if (!toId) { alert('⚠️ Choisissez un destinataire'); return; }
+  if (!content) { alert('⚠️ Écrivez un message'); return; }
+  try {
+    await fetch('/api/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ toId, content }) });
+    document.getElementById('modalNouveauMsg').remove();
+    // Ouvrir la conversation
+    const contacts = await fetch('/api/messages/contacts').then(r => r.json());
+    const contact = contacts.find(c => c.id === parseInt(toId));
+    if (contact) await ouvrirConversation(contact.id, contact.nom, contact.role);
+    await chargerConversations();
+  } catch(e) { alert('Erreur : ' + e.message); }
+}
+
+async function mettreAJourBadge() {
+  try {
+    const data = await fetch('/api/messages/unread/count').then(r => r.json());
+    const badge = document.getElementById('msgBadge');
+    if (badge) {
+      if (data.count > 0) { badge.textContent = data.count; badge.style.display = 'inline-flex'; }
+      else { badge.style.display = 'none'; }
+    }
+  } catch(e) {}
 }
 
 async function loadPlanningUnifie() {
