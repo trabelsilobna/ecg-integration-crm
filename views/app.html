@@ -1307,6 +1307,7 @@
         <button class="filter-tab" onclick="switchAdminTab('utilisateurs')">👥 Utilisateurs</button>
         <button class="filter-tab" onclick="switchAdminTab('parcours')">📋 Parcours</button>
         <button class="filter-tab" onclick="switchAdminTab('formations')">🎓 Formations</button>
+        <button class="filter-tab" onclick="switchAdminTab('quiz-corrections')">✏️ Corrections Quiz</button>
         <button class="filter-tab" onclick="switchAdminTab('kpi')">📊 KPI & Objectifs</button>
         <button class="filter-tab" onclick="switchAdminTab('planning-coach')">🤝 Planning Coach</button>
       </div>
@@ -3397,6 +3398,7 @@ function switchAdminTab(tab) {
   else if (tab === 'utilisateurs') renderAdminUtilisateurs(c);
   else if (tab === 'parcours') renderAdminParcours(c);
   else if (tab === 'formations') renderAdminFormations(c);
+  else if (tab === 'quiz-corrections') renderQuizCorrections(c);
   else if (tab === 'kpi') renderAdminKPI(c);
   else if (tab === 'planning-coach') renderAdminPlanningCoach(c);
 }
@@ -3675,6 +3677,102 @@ function supprimerEtapePMO(id, btn) {
       if (d.success) { const c = document.getElementById('adminPmoContent'); renderAdminParcours(c); }
       else alert('Erreur : ' + (d.error||'Inconnue'));
     });
+}
+
+async function renderQuizCorrections(c) {
+  c.innerHTML = `<div style="text-align:center;padding:30px;color:#94a3b8">🔄 Chargement des quiz...</div>`;
+  try {
+    const reponses = await fetch('/api/quiz/reponses/formateur').then(r => r.json());
+    const enAttente = reponses.filter(r => r.statut === 'en_attente_correction');
+    const corriges = reponses.filter(r => r.statut === 'corrigé');
+
+    c.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px">
+        <div style="background:#fff3cd;border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:24px;font-weight:700;color:#856404">${enAttente.length}</div>
+          <div style="font-size:12px;color:#856404">En attente</div>
+        </div>
+        <div style="background:#d1fae5;border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:24px;font-weight:700;color:#065f46">${corriges.length}</div>
+          <div style="font-size:12px;color:#065f46">Corrigés</div>
+        </div>
+        <div style="background:#dbeafe;border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:24px;font-weight:700;color:#1e40af">${reponses.length}</div>
+          <div style="font-size:12px;color:#1e40af">Total</div>
+        </div>
+      </div>
+
+      ${enAttente.length ? `
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">⏳ Quiz en attente de correction (${enAttente.length})</div>
+        ${enAttente.map(r => `
+          <div style="border:1.5px solid #fde68a;border-radius:10px;padding:16px;margin-bottom:12px;background:#fffbeb">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+              <div>
+                <div style="font-weight:700;color:#1A3A6B;font-size:14px">${r.quizTitre}</div>
+                <div style="font-size:12px;color:#64748b;margin-top:2px">👤 ${r.conseillerNom} • Soumis le ${r.dateSoumission} à ${r.heureSoumission}</div>
+              </div>
+              <span style="background:#fde68a;color:#856404;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">⏳ En attente</span>
+            </div>
+            <div style="margin-bottom:12px">
+              ${r.reponses.map((rep, i) => `
+                <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:10px;margin-bottom:6px">
+                  <div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px">Question ${rep.questionId}</div>
+                  <div style="font-size:13px;color:#1e293b">${rep.reponse || '—'}</div>
+                </div>`).join('')}
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <input type="number" id="note_${r.id}" min="0" max="20" placeholder="Note /20" style="width:100px;padding:8px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:13px">
+              <input type="text" id="comment_${r.id}" placeholder="Commentaire formateur..." style="flex:1;min-width:200px;padding:8px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:13px">
+              <button onclick="corrigerQuiz(${r.id})" style="background:#16a34a;color:#fff;border:none;padding:8px 18px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">✅ Valider correction</button>
+            </div>
+          </div>`).join('')}
+      </div>` : '<div style="background:#f0fdf4;border-radius:10px;padding:20px;text-align:center;color:#16a34a;margin-bottom:20px">✅ Aucun quiz en attente de correction !</div>'}
+
+      ${corriges.length ? `
+      <div class="card">
+        <div class="card-title">✅ Quiz corrigés (${corriges.length})</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Conseiller</th><th>Quiz</th><th>Date soumission</th><th>Note</th><th>Corrigé par</th></tr></thead>
+            <tbody>
+              ${corriges.map(r => `<tr>
+                <td style="font-weight:600">${r.conseillerNom}</td>
+                <td style="font-size:12px">${r.quizTitre}</td>
+                <td style="font-size:12px;color:#64748b">${r.dateSoumission}</td>
+                <td><span style="background:${parseInt(r.note)>=10?'#d1fae5':'#fee2e2'};color:${parseInt(r.note)>=10?'#065f46':'#dc2626'};padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700">${r.note}/20</span></td>
+                <td style="font-size:12px;color:#64748b">${r.corrigePar || '—'}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>` : ''}
+    `;
+  } catch(e) {
+    c.innerHTML = `<div style="color:red;padding:20px">Erreur : ${e.message}</div>`;
+  }
+}
+
+async function corrigerQuiz(id) {
+  const note = document.getElementById('note_' + id)?.value;
+  const commentaire = document.getElementById('comment_' + id)?.value;
+  if (!note) { alert('⚠️ Veuillez saisir une note'); return; }
+  try {
+    const res = await fetch('/api/quiz/corriger/' + id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ note: parseInt(note), commentaire })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const c = document.getElementById('adminPmoContent');
+      await renderQuizCorrections(c);
+    } else {
+      alert('❌ ' + (data.error || 'Erreur'));
+    }
+  } catch(e) {
+    alert('❌ ' + e.message);
+  }
 }
 
 async function renderAdminFormations(c) {

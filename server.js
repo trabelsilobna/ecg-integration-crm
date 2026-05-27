@@ -300,6 +300,96 @@ app.delete('/api/collaborateurs/:id', requireAdmin, async (req, res) => {
   res.json({ success: true, message: `Compte de ${user.prenom} ${user.nom} supprimé` });
 });
 
+// ─── API QUIZ ─────────────────────────────────────────────────────────────────
+
+app.get('/api/quiz', requireAuth, async (req, res) => {
+  try {
+    const quizzes = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'quiz_questions.json'), 'utf8'));
+    res.json(quizzes);
+  } catch(e) { res.json([]); }
+});
+
+app.get('/api/quiz/:id', requireAuth, async (req, res) => {
+  try {
+    const quizzes = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'quiz_questions.json'), 'utf8'));
+    const quiz = quizzes.find(q => q.id === req.params.id);
+    if (!quiz) return res.status(404).json({ error: 'Quiz non trouvé' });
+    res.json(quiz);
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/quiz/soumettre', requireAuth, async (req, res) => {
+  try {
+    const { quizId, quizTitre, reponses, userId } = req.body;
+    const user = req.session.user;
+    const filePath = path.join(__dirname, 'data', 'quiz_reponses.json');
+    let reponsesList = [];
+    try { reponsesList = JSON.parse(fs.readFileSync(filePath, 'utf8')); } catch(e) { reponsesList = []; }
+    const newReponse = {
+      id: Date.now(),
+      quizId, quizTitre,
+      conseillerId: user.id,
+      conseillerNom: `${user.prenom} ${user.nom}`,
+      conseillerLogin: user.login,
+      reponses,
+      dateSoumission: new Date().toLocaleDateString('fr-FR'),
+      heureSoumission: new Date().toLocaleTimeString('fr-FR'),
+      statut: 'en_attente_correction',
+      note: null,
+      commentaireFormateur: null
+    };
+    reponsesList.push(newReponse);
+    fs.writeFileSync(filePath, JSON.stringify(reponsesList, null, 2));
+    res.json({ success: true, message: 'Quiz soumis au formateur pour correction !', id: newReponse.id });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/quiz/reponses/formateur', requireAuth, async (req, res) => {
+  const role = req.session.user.role;
+  if (!['formateur', 'admin', 'pmo', 'rh', 'pdg', 'coach'].includes(role)) return res.status(403).json({ error: 'Accès refusé' });
+  try {
+    const filePath = path.join(__dirname, 'data', 'quiz_reponses.json');
+    let reponses = [];
+    try { reponses = JSON.parse(fs.readFileSync(filePath, 'utf8')); } catch(e) { reponses = []; }
+    // Formateur voit seulement ses CC assignés
+    if (role === 'formateur') {
+      const users = await readDataA('users.json');
+      const mesCC = users.filter(u => u.responsableFormateur === req.session.user.id).map(u => u.id);
+      reponses = reponses.filter(r => mesCC.includes(r.conseillerId));
+    }
+    res.json(reponses);
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/quiz/reponses/moi', requireAuth, async (req, res) => {
+  try {
+    const filePath = path.join(__dirname, 'data', 'quiz_reponses.json');
+    let reponses = [];
+    try { reponses = JSON.parse(fs.readFileSync(filePath, 'utf8')); } catch(e) { reponses = []; }
+    reponses = reponses.filter(r => r.conseillerId === req.session.user.id);
+    res.json(reponses);
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.put('/api/quiz/corriger/:id', requireAuth, async (req, res) => {
+  const role = req.session.user.role;
+  if (!['formateur', 'admin', 'pmo', 'rh', 'coach'].includes(role)) return res.status(403).json({ error: 'Accès refusé' });
+  try {
+    const { note, commentaire } = req.body;
+    const filePath = path.join(__dirname, 'data', 'quiz_reponses.json');
+    let reponses = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    const idx = reponses.findIndex(r => r.id === parseInt(req.params.id));
+    if (idx === -1) return res.status(404).json({ error: 'Réponse non trouvée' });
+    reponses[idx].note = note;
+    reponses[idx].commentaireFormateur = commentaire;
+    reponses[idx].statut = 'corrigé';
+    reponses[idx].corrigePar = `${req.session.user.prenom} ${req.session.user.nom}`;
+    reponses[idx].dateCorrection = new Date().toLocaleDateString('fr-FR');
+    fs.writeFileSync(filePath, JSON.stringify(reponses, null, 2));
+    res.json({ success: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 // ─── NETTOYAGE TEMPORAIRE ─────────────────────────────────────────────────────
 app.get('/api/cleanup-matteo-ecg2026', async (req, res) => {
   try {

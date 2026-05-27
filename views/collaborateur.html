@@ -2108,13 +2108,19 @@ function renderRessources(list) {
           </div>
           <div style="padding:6px 8px;">
             ${groupe.fichiers.map(f => {
+              const isQuiz = f.titre.toLowerCase().includes('quiz') || f.titre.toLowerCase().includes('evaluation') || f.titre.toLowerCase().includes('évaluation');
+              const quizIdMap = { 'jour_1': 'quiz_j1', 'jour_2': 'quiz_j2', 'jour_3': 'quiz_j3', 'jour_4': 'quiz_j4', 'jour_10': 'quiz_j10' };
+              const quizId = quizIdMap[f.jour] || null;
               return `<div style="display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:8px;" onmouseover="this.style.background='#eef2ff'" onmouseout="this.style.background='transparent'">
                 <span style="font-size:1.2rem;">${f.icone}</span>
                 <div style="flex:1;min-width:0;">
                   <div style="font-weight:500;font-size:0.88rem;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.titre}</div>
                   <div style="font-size:0.76rem;color:#64748b;">${f.type} \u00b7 ${f.taille}</div>
                 </div>
-                ${f.url ? `<button onclick="openDocViewer('${f.url}', encodeURIComponent('${f.titre.replace(/'/g, "\\'").replace(/"/g, '&quot;')}'))" style="background:#1A3A6B;color:white;border:none;padding:5px 14px;border-radius:6px;font-size:0.78rem;cursor:pointer;white-space:nowrap;flex-shrink:0;">&#128065; Voir</button>` : ''}
+                <div style="display:flex;gap:6px;flex-shrink:0;">
+                  ${f.url ? `<button onclick="openDocViewer('${f.url}', encodeURIComponent('${f.titre.replace(/'/g, "\\'").replace(/"/g, '&quot;')}'))" style="background:#1A3A6B;color:white;border:none;padding:5px 14px;border-radius:6px;font-size:0.78rem;cursor:pointer;">👁 Voir</button>` : ''}
+                  ${isQuiz && quizId ? `<button onclick="ouvrirQuiz('${quizId}')" style="background:#16a34a;color:white;border:none;padding:5px 14px;border-radius:6px;font-size:0.78rem;cursor:pointer;font-weight:600;">📝 Faire le quiz</button>` : ''}
+                </div>
               </div>`;
             }).join('')}
           </div>
@@ -2658,6 +2664,114 @@ async function changerPhotoCC(input) {
   } finally {
     if (btn) { btn.textContent = '📷'; btn.disabled = false; }
     input.value = '';
+  }
+}
+
+// ── QUIZ EN LIGNE ──────────────────────────────────────────────────────────────
+async function ouvrirQuiz(quizId) {
+  try {
+    const quiz = await fetch('/api/quiz/' + quizId).then(r => r.json());
+    if (quiz.error) { alert('Quiz non disponible'); return; }
+
+    // Vérifier si déjà soumis
+    const mesMesReponses = await fetch('/api/quiz/reponses/moi').then(r => r.json());
+    const dejaFait = mesMesReponses.find(r => r.quizId === quizId);
+
+    let modal = document.getElementById('quizModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'quizModal';
+      modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
+      document.body.appendChild(modal);
+    }
+
+    if (dejaFait) {
+      modal.innerHTML = `
+        <div style="background:#fff;border-radius:16px;padding:32px;max-width:500px;width:100%;text-align:center">
+          <div style="font-size:48px;margin-bottom:12px">${dejaFait.statut === 'corrigé' ? '✅' : '⏳'}</div>
+          <h3 style="color:#1A3A6B;margin-bottom:8px">${quiz.titre}</h3>
+          <p style="color:#64748b;margin-bottom:16px">
+            ${dejaFait.statut === 'corrigé' 
+              ? `Quiz corrigé par ${dejaFait.corrigePar}<br><strong>Note : ${dejaFait.note}/20</strong><br><em>${dejaFait.commentaireFormateur || ''}</em>`
+              : 'Quiz soumis le ' + dejaFait.dateSoumission + ' — En attente de correction par le formateur'}
+          </p>
+          <button onclick="document.getElementById('quizModal').remove()" style="background:#1A3A6B;color:#fff;border:none;padding:10px 24px;border-radius:8px;cursor:pointer;font-weight:600">Fermer</button>
+        </div>`;
+      return;
+    }
+
+    let formHTML = `
+      <div style="background:#fff;border-radius:16px;width:100%;max-width:700px;max-height:90vh;overflow-y:auto;">
+        <div style="background:#1A3A6B;color:#fff;padding:20px 24px;border-radius:16px 16px 0 0;position:sticky;top:0">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:1.1rem;font-weight:700">📝 ${quiz.titre}</div>
+              <div style="font-size:12px;opacity:0.8;margin-top:4px">${quiz.questions.length} questions — Répondez soigneusement</div>
+            </div>
+            <button onclick="document.getElementById('quizModal').remove()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px">✕</button>
+          </div>
+        </div>
+        <div style="padding:24px;">
+          <form id="quizForm">`;
+
+    quiz.questions.forEach((q, i) => {
+      formHTML += `
+        <div style="margin-bottom:20px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px">
+          <div style="font-weight:600;color:#1A3A6B;margin-bottom:8px;font-size:14px">${i+1}. ${q.question}</div>
+          ${q.type === 'textarea' 
+            ? `<textarea id="q_${q.id}" rows="4" placeholder="Votre réponse..." style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;resize:vertical;box-sizing:border-box;font-family:inherit" required></textarea>`
+            : `<input type="text" id="q_${q.id}" placeholder="Votre réponse..." style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;box-sizing:border-box" required />`
+          }
+        </div>`;
+    });
+
+    formHTML += `
+          </form>
+          <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:8px">
+            <button onclick="document.getElementById('quizModal').remove()" style="background:#f1f5f9;color:#475569;border:none;padding:10px 24px;border-radius:8px;cursor:pointer;font-weight:600">Annuler</button>
+            <button onclick="soumettreQuiz('${quiz.id}', '${quiz.titre}', ${quiz.questions.length})" style="background:#16a34a;color:#fff;border:none;padding:10px 24px;border-radius:8px;cursor:pointer;font-weight:700;font-size:14px">📤 Soumettre au formateur</button>
+          </div>
+        </div>
+      </div>`;
+
+    modal.innerHTML = formHTML;
+  } catch(e) {
+    alert('Erreur : ' + e.message);
+  }
+}
+
+async function soumettreQuiz(quizId, quizTitre, nbQuestions) {
+  const reponses = [];
+  for (let i = 1; i <= nbQuestions; i++) {
+    const el = document.getElementById('q_' + i);
+    if (el && !el.value.trim()) {
+      alert('⚠️ Veuillez répondre à toutes les questions avant de soumettre.');
+      el.focus();
+      return;
+    }
+    if (el) reponses.push({ questionId: i, reponse: el.value.trim() });
+  }
+
+  try {
+    const res = await fetch('/api/quiz/soumettre', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quizId, quizTitre, reponses })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('quizModal').innerHTML = `
+        <div style="background:#fff;border-radius:16px;padding:40px;max-width:460px;width:100%;text-align:center">
+          <div style="font-size:64px;margin-bottom:16px">🎉</div>
+          <h3 style="color:#16a34a;margin-bottom:8px">Quiz soumis avec succès !</h3>
+          <p style="color:#64748b;margin-bottom:24px">Votre quiz a été envoyé au formateur pour correction.<br>Vous serez notifié dès qu'il sera corrigé.</p>
+          <button onclick="document.getElementById('quizModal').remove()" style="background:#1A3A6B;color:#fff;border:none;padding:12px 32px;border-radius:8px;cursor:pointer;font-weight:700">Fermer</button>
+        </div>`;
+    } else {
+      alert('❌ ' + (data.error || 'Erreur lors de la soumission'));
+    }
+  } catch(e) {
+    alert('❌ Erreur réseau : ' + e.message);
   }
 }
 </script>

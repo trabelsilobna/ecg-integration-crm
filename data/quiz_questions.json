@@ -1,0 +1,71 @@
+[
+  {
+    "id": "quiz_j1",
+    "titre": "Quiz J1 — Introduction à l'assurance santé",
+    "jour": "jour_1",
+    "fichier_origine": "Quiz J1",
+    "questions": [
+      {"id": 1, "question": "Qu'est-ce qu'une mutuelle santé ?", "type": "text"},
+      {"id": 2, "question": "Citez 3 garanties essentielles d'une complémentaire santé.", "type": "text"},
+      {"id": 3, "question": "Quelle est la différence entre le ticket modérateur et le reste à charge ?", "type": "text"},
+      {"id": 4, "question": "Qu'est-ce que le RAC0 (Reste À Charge Zéro) ?", "type": "text"},
+      {"id": 5, "question": "Donnez la définition de la Sécurité Sociale.", "type": "text"},
+      {"id": 6, "question": "Quel est le rôle d'un conseiller en assurance santé ?", "type": "text"}
+    ]
+  },
+  {
+    "id": "quiz_j2",
+    "titre": "Quiz J2 — Assurance Réglementaire",
+    "jour": "jour_2",
+    "fichier_origine": "Quiz Assurance Reglementaire",
+    "questions": [
+      {"id": 1, "question": "Qu'est-ce que l'ORIAS ? Quel est son rôle ?", "type": "text"},
+      {"id": 2, "question": "Que signifie DDA (Directive Distribution d'Assurance) ?", "type": "text"},
+      {"id": 3, "question": "Qu'est-ce que le RGPD et comment s'applique-t-il dans votre métier ?", "type": "text"},
+      {"id": 4, "question": "Quelle est la phrase légale obligatoire à dire en début d'appel ?", "type": "text"},
+      {"id": 5, "question": "Qu'est-ce qu'une fiche de besoin et pourquoi est-elle obligatoire ?", "type": "text"},
+      {"id": 6, "question": "Citez 3 obligations du conseiller en matière de conformité.", "type": "text"}
+    ]
+  },
+  {
+    "id": "quiz_j3",
+    "titre": "Quiz J3 — Postes de soins et garanties santé",
+    "jour": "jour_3",
+    "fichier_origine": "Quiz QCM Postes de soins",
+    "questions": [
+      {"id": 1, "question": "Quels sont les principaux postes de soins couverts par une complémentaire santé ?", "type": "text"},
+      {"id": 2, "question": "Qu'est-ce que le forfait hospitalier ?", "type": "text"},
+      {"id": 3, "question": "Différence entre optique simple et complexe en termes de remboursement ?", "type": "text"},
+      {"id": 4, "question": "Qu'est-ce que le réseau de soins ? Donnez un exemple.", "type": "text"},
+      {"id": 5, "question": "Comment se calcule le remboursement dentaire en pourcentage du BR ?", "type": "text"},
+      {"id": 6, "question": "Qu'est-ce que la médecine douce / alternative ? Est-elle remboursée ?", "type": "text"},
+      {"id": 7, "question": "Expliquez la différence entre chambre particulière et chambre double.", "type": "text"}
+    ]
+  },
+  {
+    "id": "quiz_j4",
+    "titre": "Quiz J4 — Exercices pratiques",
+    "jour": "jour_4",
+    "fichier_origine": "Exercices Quiz Jour4",
+    "questions": [
+      {"id": 1, "question": "Simulez une accroche téléphonique complète (écrivez votre script).", "type": "textarea"},
+      {"id": 2, "question": "Un client dit 'C'est trop cher'. Comment répondez-vous ? (Méthode ARC)", "type": "textarea"},
+      {"id": 3, "question": "Citez les 6 questions de découverte client essentielles.", "type": "text"},
+      {"id": 4, "question": "Comment présentez-vous une garantie optique à un client de 45 ans ?", "type": "textarea"},
+      {"id": 5, "question": "Quelle compagnie conseilleriez-vous à un senior de 65 ans avec un petit budget ? Justifiez.", "type": "textarea"}
+    ]
+  },
+  {
+    "id": "quiz_j10",
+    "titre": "Quiz J10 — Évaluation finale",
+    "jour": "jour_10",
+    "fichier_origine": "Quiz optionnel Outils et autoevaluation",
+    "questions": [
+      {"id": 1, "question": "Quels sont les 7 TOPs d'excellence ECG ? Décrivez chacun.", "type": "textarea"},
+      {"id": 2, "question": "Présentez les 3 compagnies que vous maîtrisez le mieux avec leurs avantages.", "type": "textarea"},
+      {"id": 3, "question": "Comment gérez-vous un client mécontent qui veut résilier ?", "type": "textarea"},
+      {"id": 4, "question": "Quelle est votre méthode de closing préférée ? Expliquez.", "type": "textarea"},
+      {"id": 5, "question": "Auto-évaluation : Quel est votre point fort et votre axe d'amélioration ?", "type": "textarea"}
+    ]
+  }
+]
