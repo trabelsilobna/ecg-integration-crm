@@ -255,17 +255,24 @@ app.put('/api/collaborateurs/:id', requireAuth, async (req, res) => {
 app.post('/api/collaborateurs', requireAdmin, async (req, res) => {
   const users = await readDataA('users.json');
   const { nom, prenom, email, login, password, role, poste, site, departement, dateArrivee } = req.body;
+  if (!nom || !prenom || !email) return res.status(400).json({ error: 'Nom, prénom et email obligatoires' });
+  // Vérifier que le login/email n'existe pas déjà
+  const loginFinal = login || email;
+  const existe = users.find(u => u.login === loginFinal || u.email === email);
+  if (existe) return res.status(400).json({ error: `Un compte avec ce login ou cet email existe déjà (${existe.login})` });
   const hashed = await bcrypt.hash(password || 'Ecg2026!', 10);
   const newUser = {
-    id: Math.max(...users.map(u => u.id)) + 1,
-    nom, prenom, email, login: login || email,
+    id: Math.max(0, ...users.map(u => u.id)) + 1,
+    nom, prenom, email, login: loginFinal,
     password: hashed, role: role || 'collaborateur',
     poste, site, departement, dateArrivee,
-    progression: 0, statut: 'en_cours'
+    progression: 0, statut: 'en_cours',
+    dateCreation: new Date().toLocaleDateString('fr-FR')
   };
   users.push(newUser);
   await writeDataA('users.json', users);
-  res.json({ success: true, id: newUser.id });
+  console.log(`✅ Nouveau compte créé : ${loginFinal} (${role})`);
+  res.json({ success: true, id: newUser.id, login: loginFinal, message: `Compte créé avec succès` });
 });
 
 // ─── API PARCOURS ─────────────────────────────────────────────────────────────

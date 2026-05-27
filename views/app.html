@@ -1720,22 +1720,26 @@ function openModalNewCollab() {
 }
 
 async function createCollab() {
+  const prenom = document.getElementById('newPrenom').value.trim();
+  const nom = document.getElementById('newNom').value.trim();
+  const email = document.getElementById('newEmail').value.trim();
+  const login = document.getElementById('newLogin').value.trim() || email;
+  const role = document.getElementById('newRole').value || 'collaborateur';
+  const password = document.getElementById('newPassword').value || 'Ecg2026!';
+
+  if (!prenom || !nom || !email) {
+    alert('⚠️ Veuillez remplir les champs obligatoires : Prénom, Nom, Email');
+    return;
+  }
+
   const data = {
-    prenom: document.getElementById('newPrenom').value,
-    nom: document.getElementById('newNom').value,
-    email: document.getElementById('newEmail').value,
-    login: document.getElementById('newLogin').value,
-    role: document.getElementById('newRole').value || 'collaborateur',
+    prenom, nom, email, login, role, password,
     poste: document.getElementById('newPoste').value,
     site: document.getElementById('newSite').value,
     departement: document.getElementById('newDept').value,
-    dateArrivee: document.getElementById('newDate').value,
-    password: document.getElementById('newPassword').value || 'Ecg2026!'
+    dateArrivee: document.getElementById('newDate').value
   };
-  if (!data.prenom || !data.nom || !data.email) {
-    alert('Veuillez remplir les champs obligatoires (Prénom, Nom, Email)');
-    return;
-  }
+
   const res = await fetch('/api/collaborateurs', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1744,10 +1748,18 @@ async function createCollab() {
   const result = await res.json();
   if (result.success) {
     closeModal('modalNewCollab');
+    // Réinitialiser le formulaire
+    ['newPrenom','newNom','newEmail','newLogin','newPoste','newDept','newDate','newPassword'].forEach(id => {
+      const el = document.getElementById(id); if(el) el.value = '';
+    });
     await loadCollaborateurs();
     await loadDashboard();
+    // Afficher les identifiants de connexion
+    setTimeout(() => {
+      alert(`✅ Compte créé avec succès !\n\n👤 Nom : ${prenom} ${nom}\n🔑 Login : ${result.login}\n🔒 Mot de passe : ${password}\n\nCommuniquez ces identifiants à l'utilisateur.`);
+    }, 300);
   } else {
-    alert('Erreur lors de la création du compte');
+    alert('❌ ' + (result.error || 'Erreur lors de la création du compte'));
   }
 }
 
