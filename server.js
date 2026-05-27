@@ -498,28 +498,22 @@ app.get('/api/messages/unread/count', requireAuth, async (req, res) => {
 });
 
 app.get('/api/messages/contacts', requireAuth, async (req, res) => {
-  const user = req.session.user;
-  const users = await readDataA('users.json');
-  console.log(`contacts debug - user.role: ${user.role}, user.id: ${user.id}, total users: ${users.length}`);
-  console.log('sample user:', JSON.stringify(users[0]));
-  const roleMap = {
-    collaborateur: ['coach', 'formateur', 'recruteur', 'rh', 'manager', 'admin', 'pmo', 'pdg'],
-    coach: ['collaborateur', 'manager', 'rh', 'pmo', 'admin', 'pdg', 'directeur_commercial'],
-    formateur: ['collaborateur', 'coach', 'rh', 'manager', 'admin', 'pmo'],
-    recruteur: ['collaborateur', 'rh', 'manager', 'admin', 'pmo'],
-    manager: ['collaborateur', 'coach', 'formateur', 'recruteur', 'rh', 'pmo', 'admin', 'pdg'],
-    rh: ['collaborateur', 'coach', 'formateur', 'recruteur', 'manager', 'pmo', 'admin', 'pdg'],
-    pmo: ['coach', 'formateur', 'manager', 'rh', 'admin', 'pdg', 'collaborateur'],
-    admin: ['collaborateur', 'coach', 'formateur', 'recruteur', 'manager', 'rh', 'pmo', 'pdg', 'directeur_commercial'],
-    pdg: ['manager', 'rh', 'pmo', 'admin', 'directeur_commercial', 'coach'],
-    directeur_commercial: ['coach', 'manager', 'rh', 'pmo', 'admin', 'pdg', 'collaborateur']
-  };
-  const allowed = roleMap[user.role] || Object.keys(roleMap);
-  const contacts = users
-    .filter(u => parseInt(u.id) !== parseInt(user.id) && u.id !== undefined && allowed.includes(u.role))
-    .map(u => ({ id: u.id, nom: `${u.prenom} ${u.nom}`, role: u.role, site: u.site || '' }));
-  console.log(`contacts found: ${contacts.length}, roles: ${[...new Set(users.map(u=>u.role))].join(',')}`);
-  res.json(contacts);
+  try {
+    const user = req.session.user;
+    const users = await readDataA('users.json');
+    const rolesExclus = ['collaborateur']; // Les CC ne voient pas les autres CC
+    const contacts = users
+      .filter(u => {
+        if (String(u.id) === String(user.id)) return false; // Exclure soi-même
+        if (user.role === 'collaborateur' && u.role === 'collaborateur') return false; // CC ne voient pas les autres CC
+        return true;
+      })
+      .map(u => ({ id: u.id, nom: `${u.prenom} ${u.nom}`, role: u.role || 'inconnu', site: u.site || '' }));
+    res.json(contacts);
+  } catch(e) {
+    console.error('contacts error:', e.message);
+    res.json([]);
+  }
 });
 
 // ─── DEBUG USERS ──────────────────────────────────────────────────────────────
